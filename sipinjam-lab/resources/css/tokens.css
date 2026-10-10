@@ -1,0 +1,64 @@
+/* SIPINJAM-LAB - Design Tokens (Palet A, bersumber dari DESIGN.md Stitch) */
+:root {
+  /* Warna dasar */
+  --color-primary: #091426;
+  --color-on-primary: #ffffff;
+  --color-primary-hover: #1e293b;
+  --color-action: #0051d5;
+  --color-on-action: #ffffff;
+  --color-surface: #f8f9ff;
+  --color-card: #ffffff;
+  --color-inset: #eff4ff;
+  --color-text: #0b1c30;
+  --color-text-muted: #45474c;
+  --color-placeholder: #62646a;
+  --color-border: #c5c6cd;
+  --color-border-strong: #75777d;
+
+  /* Warna status (success/warning dipinjam dari teks DESIGN.md; hanya untuk ikon dan garis) */
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #ba1a1a;
+
+  /* Badge status: teks gelap di atas latar terang, selalu disertai label teks */
+  --badge-success-bg: #ecfdf5;  --badge-success-text: #065f46;  --badge-success-border: #a7f3d0;
+  --badge-warning-bg: #fffbeb;  --badge-warning-text: #92400e;  --badge-warning-border: #fde68a;
+  --badge-info-bg:    #eff6ff;  --badge-info-text:    #1e40af;  --badge-info-border:    #bfdbfe;
+  --badge-danger-bg:  #fef2f2;  --badge-danger-text:  #991b1b;  --badge-danger-border:  #fecaca;
+
+  /* Tipografi */
+  --font-heading: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text-display: 44px;   --lh-display: 52px;
+  --text-h1: 30px;        --lh-h1: 38px;
+  --text-h2: 20px;        --lh-h2: 28px;
+  --text-h3: 16px;        --lh-h3: 24px;
+  --text-body-lg: 16px;   --lh-body-lg: 26px;
+  --text-body: 14px;      --lh-body: 22px;
+  --text-caption: 13px;   --lh-caption: 18px;
+  --text-label: 12px;     --lh-label: 16px;
+  --text-code: 11px;      --lh-code: 14px;
+
+  /* Jarak (kelipatan 4) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+
+  /* Bentuk */
+  --radius: 0;
+  --border-width: 1px;
+  --shadow-modal: 4px 4px 0 0 #1e293b;
+  --control-height: 40px;
+  --focus-ring: 2px solid #0051d5;
+}
+
+@media (max-width: 767px) {
+  :root {
+    --text-display: 32px;  --lh-display: 40px;
+    --text-h1: 24px;       --lh-h1: 32px;
+  }
+}

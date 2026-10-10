@@ -9,3 +9,5 @@ Route::get('/', function () {
 Route::get('/awal', function () {
     return view('awal');
 });
+
+Route::view('/komponen', 'pages.komponen');
