@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prototipe SIPINJAM-LAB</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#e9e9e9;font-family:Arial,Helvetica,sans-serif;color:#222;display:flex;justify-content:center;padding:16px}
+#app{width:100%;max-width:390px;min-height:760px;background:#fff;border:2px solid #444;display:flex;flex-direction:column}
+.bar{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:2px solid #444;background:#eee}.logo{font-weight:bold;border:1.5px solid #444;padding:3px 8px;background:#fff}.sp{flex:1}
+.av{width:28px;height:28px;border-radius:50%;border:1.5px solid #444;background:#ddd}
+main{flex:1;padding:16px 14px;overflow:auto}h3{margin:0 0 6px;font-size:20px}.mut{color:#666;font-size:13px}
+button,.btn{font:inherit;cursor:pointer}
+.btn{display:block;width:100%;min-height:46px;margin-top:10px;border:1.5px solid #222;border-radius:4px;background:#222;color:#fff;font-weight:bold}
+.btn.sec{background:#fff;color:#222}.btn[disabled]{background:#bbb;border-color:#bbb;cursor:not-allowed}
+.field{width:100%;min-height:44px;border:1.5px solid #888;border-radius:3px;padding:10px;font:inherit;background:#fff}.field.err{border-color:#c0392b}.ro{background:#eee}
+label{display:block;font-weight:bold;font-size:13px;margin:14px 0 5px}.errt{color:#c0392b;font-size:12px;margin-top:4px}
+.card{border:1.5px solid #777;border-radius:5px;padding:12px;background:#fafafa;margin-bottom:10px}
+.ph{height:80px;background:repeating-linear-gradient(45deg,#e3e3e3,#e3e3e3 6px,#f0f0f0 6px,#f0f0f0 12px);border:1.5px solid #999;display:flex;align-items:center;justify-content:center;color:#777;font-size:12px;margin-bottom:8px}
+.tag{font-size:11px;border:1px solid #555;padding:1px 8px;border-radius:10px;background:#fff}.ok{border-color:#2b7a3d;color:#2b7a3d}.no{border-color:#c0392b;color:#c0392b}.wait{border-color:#b9770e;color:#b9770e}
+.alert{border:1.5px solid #c0392b;background:#fdecea;color:#8e2a1f;padding:10px 12px;border-radius:4px;margin-bottom:12px}
+.okb{border:1.5px solid #2b7a3d;background:#e9f6ec;color:#1f5a2c;padding:10px 12px;border-radius:4px;margin-bottom:12px}
+.info{border:1.5px solid #2b5fd9;background:#eaf0fd;padding:10px 12px;border-radius:4px;margin:12px 0;font-size:13px}
+.step{display:flex;gap:6px;margin:10px 0}.step div{flex:1;text-align:center;border:1.5px solid #888;padding:6px 2px;font-size:11px}.step .on{background:#222;color:#fff;border-color:#222}
+.rad{display:flex;gap:10px}.rad label{flex:1;margin:0;border:1.5px solid #888;border-radius:4px;padding:12px;font-weight:normal;cursor:pointer}.rad input{margin-right:6px}
+table{border-collapse:collapse;width:100%}th,td{border:1.5px solid #888;padding:7px;text-align:left;font-size:13px}th{background:#eee;width:38%}
+.tabs{display:flex;border-top:2px solid #444;background:#eee}.tabs button{flex:1;border:0;background:none;padding:14px 0;font-size:12px}.tabs .on{font-weight:bold;border-top:3px solid #2b5fd9;margin-top:-2px}
+.back{background:none;border:0;padding:6px 0;color:#444;font-size:13px;cursor:pointer}
+.reset{position:fixed;left:12px;bottom:12px;font-size:12px;padding:8px 12px;border:1.5px solid #444;background:#fff;border-radius:4px;cursor:pointer}
+</style></head><body>
+<div id="app"></div>
+<button class="reset" onclick="go('login',true)">Mulai ulang prototipe</button>
+<script>
+const S={nim:'',alat:null,tgl:'Senin, 12 Okt 2026',dur:'',jam:'KTM',err:null,loginErr:false,sent:false};
+const ALAT=[{id:1,n:'Mikroskop Binokuler',k:'Optik',ok:true,kode:'OPT-MB-004'},{id:2,n:'Osiloskop Digital',k:'Elektronika',ok:false,kode:'ELK-OS-002',info:'Sedang dipinjam sampai Rabu, 14 Okt 2026'},{id:3,n:'Multimeter',k:'Elektronika',ok:true,kode:'ELK-MM-011'}];
+const DUR={'1':'Selasa, 13 Okt 2026','2':'Rabu, 14 Okt 2026','3':'Kamis, 15 Okt 2026'};
+let cur='login';
+const $=s=>document.querySelector(s);
+function shell(inner,active,top=true){
+ const bar=`<div class="bar"><span class="logo">SIPINJAM-LAB</span><span class="sp"></span><span class="av"></span></div>`;
+ const tabs=active?`<div class="tabs"><button class="${active=='alat'?'on':''}" onclick="go('alat')">Daftar Alat</button><button class="${active=='status'?'on':''}" onclick="go('status')">Peminjaman Saya</button></div>`:'';
+ return bar+`<main>${inner}</main>`+tabs;
+}
+const V={
+login:()=>shell(`<h3>Masuk</h3><div class="mut">Peminjaman alat laboratorium</div>
+ <label>NIM</label><input id="nim" class="field ${S.loginErr?'err':''}" inputmode="numeric" placeholder="Contoh: 2200012345" value="${S.nim}">
+ ${S.loginErr?'<div class="errt">NIM tidak ditemukan. Periksa kembali NIM Anda.</div>':''}
+ <label>Kata sandi</label><input id="pw" type="password" class="field" placeholder="Kata sandi (bebas)">
+ <button class="btn" onclick="login()">Masuk</button>
+ <div class="info">Uji jalur gagal: ketik NIM selain <b>2200012345</b>. Jalur berhasil: NIM <b>2200012345</b>.</div>`,null),
+alat:()=>shell(`<h3>Daftar Alat</h3><div class="mut">Pilih alat yang ingin dipinjam</div><div style="height:12px"></div>`+ALAT.map(a=>`<div class="card"><div class="ph">foto alat</div><b>${a.n}</b><div class="mut">${a.k}</div><div style="margin:8px 0"><span class="tag ${a.ok?'ok':'no'}">${a.ok?'Tersedia':'Dipinjam'}</span></div><button class="btn sec" onclick="pick(${a.id})">Lihat Detail</button></div>`).join(''),'alat'),
+detail:()=>{const a=S.alat;return shell(`<button class="back" onclick="go('alat')">‹ Kembali ke Daftar Alat</button><h3>${a.n}</h3><div class="mut">${a.k} · ${a.kode} · Lab Terpadu Lt. 2</div><div class="ph" style="height:100px;margin-top:10px">foto alat</div>
+ <span class="tag ${a.ok?'ok':'no'}">${a.ok?'Tersedia':'Sedang dipinjam'}</span><p class="mut">Spesifikasi singkat · batas maksimal pinjam 5 hari kerja.</p>
+ ${a.ok?'<button class="btn" onclick="go(\'form\')">Pinjam Sekarang</button>':`<div class="alert">Alat tidak tersedia pada tanggal ini. ${a.info}.</div><button class="btn" disabled>Pinjam Sekarang (nonaktif)</button>`}
+ <button class="btn sec" onclick="go('alat')">Kembali</button>`,'alat')},
+form:()=>{const a=S.alat;return shell(`<button class="back" onclick="go('detail')">‹ Kembali</button><h3>Ajukan Peminjaman</h3>
+ <div class="step"><div class="on">1 Isi form</div><div>2 Konfirmasi</div><div>3 Status</div></div>
+ ${S.err?`<div class="alert"><b>Pengajuan gagal.</b> ${S.err}</div>`:''}
+ <div class="card"><b>${a.n}</b> <span class="tag ok">Tersedia</span><div class="mut">${a.kode}</div></div>
+ <label>NIM</label><div class="field ro">${S.nim} ✓ Terverifikasi</div><div class="mut" style="margin-top:4px">Dimas Prasetyo · S1 Teknik Elektro</div>
+ <label>Tanggal pinjam *</label><div class="field ro">${S.tgl}</div>
+ <label>Lama peminjaman *</label><select id="dur" class="field ${S.err?'err':''}" onchange="S.dur=this.value;S.err=null;render()"><option value="">Pilih lama peminjaman</option>${[1,2,3].map(d=>`<option value="${d}" ${S.dur==d?'selected':''}>${d} hari kerja (kembali ${DUR[d]})</option>`).join('')}</select>
+ ${S.err?'<div class="errt">Lama peminjaman wajib dipilih.</div>':''}
+ <label>Jenis jaminan fisik *</label><div class="rad"><label><input type="radio" name="j" ${S.jam=='KTM'?'checked':''} onchange="S.jam='KTM'">KTM</label><label><input type="radio" name="j" ${S.jam=='KTP'?'checked':''} onchange="S.jam='KTP'">KTP</label></div>
+ <div class="info">Jaminan diverifikasi laboran saat serah terima di loket Lab Terpadu.</div>
+ <button class="btn" onclick="submitForm()">Ajukan Peminjaman</button><button class="btn sec" onclick="go('detail')">Batal</button>`,'alat')},
+konfirmasi:()=>{const a=S.alat;return shell(`<button class="back" onclick="go('form')">‹ Kembali Ubah Data</button><h3>Konfirmasi Pengajuan</h3>
+ <div class="step"><div>1 Isi form</div><div class="on">2 Konfirmasi</div><div>3 Status</div></div>
+ <table><tr><th>Peminjam</th><td>Dimas Prasetyo · ${S.nim}</td></tr><tr><th>Alat</th><td>${a.n}</td></tr><tr><th>Tanggal pinjam</th><td>${S.tgl}</td></tr><tr><th>Kembali</th><td>${DUR[S.dur]} · 16.00</td></tr><tr><th>Jaminan</th><td>${S.jam} (ditahan saat serah terima)</td></tr></table>
+ <div class="info">Setelah dikirim, status menjadi <b>Menunggu Verifikasi</b>.</div>
+ <button class="btn" onclick="S.sent=true;go('status')">Kirim Pengajuan</button><button class="btn sec" onclick="go('form')">Kembali Ubah Data</button>`,'alat')},
+status:()=>{const a=S.alat||ALAT[0];const rows=(S.sent?[[a.n,'12–'+DUR[S.dur].split(',')[1].trim().split(' ').slice(0,2).join(' '),'wait','Menunggu Verifikasi',1]]:[]).concat([['Multimeter','28–30 Sep','','Aktif',0],['Osiloskop Digital','10–11 Sep','ok','Selesai',0]]);
+ return shell(`<h3>Peminjaman Saya</h3><div class="mut">Semua pengajuan dan statusnya</div><div style="height:12px"></div>
+ ${S.sent?'<div class="okb">Pengajuan terkirim. Status: <b>Menunggu Verifikasi</b></div>':''}
+ ${rows.map(r=>`<div class="card"><b>${r[0]}</b><div class="mut">${r[1]}</div><span class="tag ${r[2]}">${r[3]}</span>${r[4]?'<button class="btn sec" onclick="go(\'rincian\')">Lihat Rincian & Bukti</button>':''}</div>`).join('')}`,'status')},
+rincian:()=>{const a=S.alat;return shell(`<button class="back" onclick="go('status')">‹ Kembali ke Peminjaman Saya</button><h3>Rincian Peminjaman</h3>
+ <div class="okb">Status: <b>Menunggu Verifikasi</b></div>
+ <div class="step"><div class="on">Diajukan</div><div>Disetujui</div><div>Serah terima</div><div>Aktif</div><div>Selesai</div></div>
+ <table><tr><th>Alat</th><td>${a.n}</td></tr><tr><th>Mulai</th><td>${S.tgl}</td></tr><tr><th>Batas kembali</th><td>${DUR[S.dur]} · 16.00</td></tr><tr><th>Jaminan</th><td>${S.jam} (dibawa saat ambil alat)</td></tr></table>
+ <div class="info">Bawa ${S.jam} ke loket Lab Terpadu setelah pengajuan disetujui.</div><button class="btn sec" onclick="go('status')">Kembali</button>`,'status')}
+};
+function render(){$('#app').innerHTML=V[cur]()}
+function go(v,reset){if(reset){Object.assign(S,{nim:'',alat:null,dur:'',jam:'KTM',err:null,loginErr:false,sent:false})}S.err=v=='form'&&cur!='form'?null:S.err;cur=v;render();window.scrollTo(0,0)}
+function login(){const v=$('#nim').value.trim();S.nim=v;if(v!=='2200012345'){S.loginErr=true;render();return}S.loginErr=false;go('alat')}
+function pick(id){S.alat=ALAT.find(a=>a.id==id);go('detail')}
+function submitForm(){if(!S.dur){S.err='Lama peminjaman wajib dipilih.';render();return}S.err=null;go('konfirmasi')}
+render();
+</script></body></html>
