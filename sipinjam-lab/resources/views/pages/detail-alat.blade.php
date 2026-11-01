@@ -1,78 +1,81 @@
 @extends('layouts.app')
 
-@section('title', 'Spesifikasi Alat - ' . $alat->nama)
+@section('title', 'Detail Alat - ' . $alat->nama)
 
 @section('content')
-<div class="mx-auto max-w-4xl space-y-5">
-  <!-- Navigasi Kembali -->
-  <div class="flex items-center justify-between">
-    <a href="{{ route('alat.hasil') }}" class="btn btn-secondary btn-sm">
-      &larr; Kembali ke Katalog
-    </a>
-    <span class="text-xs text-[#64748b]">Kode Inventaris: <strong class="font-mono text-[#202938]">{{ $alat->kode }}</strong></span>
-  </div>
+<div class="mx-auto max-w-4xl px-4 py-6 space-y-6">
+  <!-- Tombol kembali -->
+  <a href="{{ route('alat.hasil') }}"
+     class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-pink-600 hover:text-pink-700">
+    &larr; Kembali ke daftar alat
+  </a>
 
-  <!-- Kartu Detail Spesifikasi Alat -->
-  <div class="card overflow-hidden">
-    <!-- Header Informasi Alat -->
-    <div class="card-header bg-[#f8fafc]">
-      <div>
-        <div class="flex items-center gap-2 mb-1.5">
-          <span class="code-badge">{{ $alat->kode }}</span>
-          <x-badge :status="$alat->stok > 0 ? 'tersedia' : 'habis'" />
-        </div>
-        <h1 class="text-xl font-bold text-[#202938]">{{ $alat->nama }}</h1>
-        <p class="text-xs text-[#64748b] mt-0.5">Bidang Kategori: <strong class="text-slate-800">{{ $alat->kategori }}</strong></p>
+  <!-- Kartu detail alat -->
+  <div class="overflow-hidden rounded-3xl border border-pink-100 bg-white shadow-xl shadow-pink-100/30">
+    <!-- Informasi Utama Header -->
+    <div class="bg-gradient-to-r from-pink-50 via-[#fdf7f9] to-rose-50 p-6 sm:p-8 border-b border-pink-100">
+      <div class="flex items-center gap-2 mb-2">
+        <span class="code-label">{{ $alat->kode }}</span>
+        <x-badge :status="$alat->stok > 0 ? 'tersedia' : 'habis'" />
+      </div>
+
+      <h1 class="text-3xl sm:text-4xl font-extrabold text-slate-900">
+        {{ $alat->nama }}
+      </h1>
+
+      <p class="mt-2 text-sm text-slate-600">
+        Bidang Kategori: <strong class="text-pink-700">{{ $alat->kategori }}</strong>
+      </p>
+    </div>
+
+    <!-- Spesifikasi Lokasi dan Stok -->
+    <div class="grid gap-6 p-6 sm:p-8 sm:grid-cols-2">
+      <div class="p-5 rounded-2xl bg-[#fdfafb] border border-pink-100/80">
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Lokasi Penyimpanan</p>
+        <p class="mt-1.5 text-base font-bold text-slate-900 flex items-center gap-2">
+          <svg class="w-5 h-5 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          {{ $alat->lokasi }}
+        </p>
+      </div>
+
+      <div class="p-5 rounded-2xl bg-[#fdfafb] border border-pink-100/80">
+        <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Ketersediaan Unit Fisik</p>
+        <p class="mt-1.5 text-base font-extrabold flex items-center gap-2 {{ $alat->stok > 0 ? 'text-emerald-700' : 'text-rose-600' }}">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+          </svg>
+          {{ $alat->stok }} Unit Tersedia
+        </p>
       </div>
     </div>
 
-    <!-- Spesifikasi Grid -->
-    <div class="p-6 space-y-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="p-4 rounded-md border border-[#e5e7eb] bg-[#f8fafc]">
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Lokasi Penyimpanan Lab</span>
-          <div class="font-bold text-sm text-[#202938] flex items-center gap-2">
-            <svg class="w-4 h-4 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
-            </svg>
-            <span>{{ $alat->lokasi }}</span>
-          </div>
-        </div>
+    <!-- Deskripsi Alat -->
+    @if($alat->deskripsi)
+      <div class="px-6 sm:px-8 pb-6">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Deskripsi & Fungsi Alat</h2>
+        <p class="text-sm text-slate-600 leading-relaxed bg-slate-50/70 p-4 rounded-2xl border border-slate-100">
+          {{ $alat->deskripsi }}
+        </p>
+      </div>
+    @endif
 
-        <div class="p-4 rounded-md border border-[#e5e7eb] bg-[#f8fafc]">
-          <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Ketersediaan Unit Fisik</span>
-          <div class="font-bold text-sm flex items-center gap-2 {{ $alat->stok > 0 ? 'text-emerald-700' : 'text-red-600' }}">
-            <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/>
-            </svg>
-            <span>{{ $alat->stok }} Unit Tersedia</span>
-          </div>
-        </div>
+    <!-- Tombol peminjaman -->
+    <div class="border-t border-slate-100 p-6 sm:p-8 bg-slate-50/40 flex items-center justify-between">
+      <div class="text-xs text-slate-500">
+        Peminjaman akan diverifikasi secara langsung oleh Petugas Laboran.
       </div>
 
-      <!-- Deskripsi Peralatan -->
-      <div>
-        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">Deskripsi & Fungsi Peralatan</h2>
-        <div class="p-4 rounded-md border border-[#e5e7eb] bg-white text-xs text-[#202938] leading-relaxed">
-          {{ $alat->deskripsi ?? 'Tidak ada catatan deskripsi teknis khusus untuk peralatan laboratorium ini.' }}
-        </div>
-      </div>
-    </div>
-
-    <!-- Action Footer -->
-    <div class="card-footer flex items-center justify-between">
-      <div class="text-xs text-[#64748b]">
-        Pengajuan peminjaman memerlukan verifikasi dan persetujuan dari Petugas Laboran.
-      </div>
       <div>
         @if ($alat->stok > 0)
-          <a href="{{ route('alat.pinjam', $alat->id) }}" class="btn btn-primary">
-            Ajukan Peminjaman &rarr;
+          <a href="{{ route('alat.pinjam', $alat->id) }}" class="btn">
+            Ajukan Peminjaman Alat Ini &rarr;
           </a>
         @else
-          <button type="button" disabled class="btn btn-secondary">
-            Alat Sedang Tidak Tersedia
+          <button type="button" disabled class="btn">
+            Alat Tidak Tersedia (Stok Habis)
           </button>
         @endif
       </div>

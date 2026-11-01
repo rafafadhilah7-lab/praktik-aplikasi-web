@@ -1,179 +1,182 @@
 @extends('layouts.app')
 
-@section('title', 'Portal Peminjaman Mahasiswa')
+@section('title', 'Dashboard Peminjam')
 
 @section('content')
-<div class="space-y-6">
-  <!-- Page Header -->
-  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#e5e7eb]">
+<div class="space-y-8">
+  <!-- Banner Mahasiswa / Peminjam -->
+  <div class="rounded-3xl bg-gradient-to-r from-pink-600 via-rose-500 to-pink-400 p-8 text-white shadow-xl shadow-pink-200/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
     <div>
-      <div class="flex items-center gap-2 mb-1">
-        <h1 class="text-xl font-bold text-[#202938]">Portal Peminjaman Mahasiswa</h1>
-        <span class="badge badge-success text-[10px]">Mahasiswa Aktif</span>
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-semibold mb-3">
+        <span class="w-2 h-2 rounded-full bg-white"></span>
+        Halo, {{ $user->name }}
       </div>
-      <p class="text-xs text-[#64748b]">
-        Selamat datang, <strong>{{ $user->name }}</strong> (NIM: {{ $user->nim ?? '-' }}). Pantau status persetujuan alat laboratorium Anda.
+      <h1 class="text-3xl font-extrabold tracking-tight text-white mb-2">Portal Peminjaman Laboratorium</h1>
+      <p class="text-pink-100 text-sm max-w-xl">
+        Pantau status permohonan alat, jadwal pengembalian, serta telusuri inventaris alat laboratorium yang siap dipinjam.
       </p>
     </div>
-    <div class="flex items-center gap-2">
-      <a href="{{ route('alat.beranda') }}" class="btn btn-primary btn-sm">
-        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <circle cx="11" cy="11" r="8"/>
-          <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.3-4.3"/>
+    <div class="flex gap-3">
+      <a href="{{ route('alat.beranda') }}"
+         class="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-white text-pink-700 font-bold text-sm shadow-md hover:bg-pink-50 transition-all hover:-translate-y-0.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
         </svg>
-        <span>Cari & Pinjam Alat</span>
-      </a>
-      <a href="{{ route('peminjam.riwayat') }}" class="btn btn-secondary btn-sm">
-        <span>Riwayat Lengkap</span>
+        Cari & Pinjam Alat
       </a>
     </div>
   </div>
 
-  <!-- KPI Summary (Compact Academic Portal) -->
-  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-    <div class="kpi-card">
-      <div class="kpi-icon bg-slate-100 text-slate-700">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+  <!-- Metric Cards -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="stat-card">
+      <div class="stat-icon bg-pink-50 text-pink-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
         </svg>
       </div>
       <div>
-        <div class="kpi-label">Total Pengajuan</div>
-        <div class="kpi-value">{{ $totalPengajuanSaya }}</div>
+        <div class="text-xs uppercase font-bold tracking-wider text-slate-500">Total Pengajuan Saya</div>
+        <div class="text-2xl font-extrabold text-slate-900">{{ $totalPengajuanSaya }}</div>
       </div>
     </div>
 
-    <div class="kpi-card">
-      <div class="kpi-icon bg-amber-50 text-amber-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    <div class="stat-card">
+      <div class="stat-icon bg-amber-50 text-amber-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </div>
       <div>
-        <div class="kpi-label">Menunggu Persetujuan</div>
-        <div class="kpi-value text-amber-600">{{ $pengajuanMenunggu }}</div>
+        <div class="text-xs uppercase font-bold tracking-wider text-slate-500">Menunggu Persetujuan</div>
+        <div class="text-2xl font-extrabold text-amber-600">{{ $pengajuanMenunggu }}</div>
       </div>
     </div>
 
-    <div class="kpi-card">
-      <div class="kpi-icon bg-blue-50 text-blue-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+    <div class="stat-card">
+      <div class="stat-icon bg-purple-50 text-purple-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </div>
       <div>
-        <div class="kpi-label">Disetujui (Siap Ambil)</div>
-        <div class="kpi-value text-blue-600">{{ $pengajuanDisetujui }}</div>
+        <div class="text-xs uppercase font-bold tracking-wider text-slate-500">Disetujui (Siap Ambil)</div>
+        <div class="text-2xl font-extrabold text-purple-600">{{ $pengajuanDisetujui }}</div>
       </div>
     </div>
 
-    <div class="kpi-card">
-      <div class="kpi-icon bg-sky-50 text-sky-600">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/>
+    <div class="stat-card">
+      <div class="stat-icon bg-sky-50 text-sky-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
         </svg>
       </div>
       <div>
-        <div class="kpi-label">Sedang Dipinjam</div>
-        <div class="kpi-value text-slate-800">{{ $alatSedangDipinjam }}</div>
+        <div class="text-xs uppercase font-bold tracking-wider text-slate-500">Sedang Dipinjam</div>
+        <div class="text-2xl font-extrabold text-sky-600">{{ $alatSedangDipinjam }}</div>
       </div>
     </div>
   </div>
 
-  <!-- Pengajuan Aktif yang Sedang Berjalan -->
-  <div class="card overflow-hidden">
-    <div class="card-header bg-[#f8fafc]">
+  <!-- Peminjaman Aktif yang Berjalan -->
+  <div class="card p-6 bg-white border-pink-100 shadow-sm">
+    <div class="flex items-center justify-between mb-4">
       <div>
-        <h3 class="card-title text-sm">Status Peminjaman Aktif</h3>
-        <p class="text-xs text-[#64748b]">Daftar permohonan yang sedang dalam proses verifikasi atau sedang dipinjam</p>
+        <h2 class="text-lg font-bold text-slate-900">Pengajuan & Peminjaman Aktif</h2>
+        <p class="text-xs text-slate-500">Pantau proses persetujuan dan jadwal peminjaman alat Anda</p>
       </div>
       <a href="{{ route('peminjam.riwayat') }}" class="btn btn-secondary btn-sm">
-        Riwayat Pengajuan
+        Lihat Semua Riwayat
       </a>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="enterprise-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nama Alat Laboratorium</th>
-            <th>Jadwal Peminjaman</th>
-            <th>Durasi</th>
-            <th>Qty</th>
-            <th>Status Peminjaman</th>
-            <th class="text-right">Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          @forelse($peminjamanAktif as $item)
-            <tr>
-              <td class="font-mono text-xs font-semibold text-slate-700">#{{ $item->id }}</td>
-              <td>
-                <div class="font-medium text-[#202938]">{{ $item->alat->nama }}</div>
-                <div class="text-[11px] text-[#64748b] font-mono">{{ $item->alat->kode }} &bull; {{ $item->alat->kategori }}</div>
-              </td>
-              <td class="text-xs">
-                <div>{{ $item->tanggal_pinjam->format('d/m/Y') }} s.d. {{ $item->tanggal_selesai->format('d/m/Y') }}</div>
-              </td>
-              <td class="text-xs text-[#64748b]">{{ $item->durasi }} hari</td>
-              <td class="font-semibold text-xs">{{ $item->jumlah }} Unit</td>
-              <td>
-                <x-badge :status="$item->status" />
-              </td>
-              <td class="text-right">
-                <a href="{{ route('peminjaman.detail', $item->id) }}" class="btn btn-secondary btn-sm">
-                  Lihat Detail
-                </a>
-              </td>
-            </tr>
-          @empty
-            <tr>
-              <td colspan="7" class="text-center py-6 text-slate-400 text-xs">
-                Tidak ada peminjaman aktif saat ini. Silakan cari alat untuk memulai permohonan baru.
-              </td>
-            </tr>
-          @endforelse
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Katalog Alat Siap Dipinjam -->
-  <div class="card">
-    <div class="card-header">
-      <div>
-        <h3 class="card-title text-sm">Katalog Alat Laboratorium Tersedia</h3>
-        <p class="text-xs text-[#64748b]">Daftar alat dengan unit stok fisik siap dipinjam</p>
+    @if($peminjamanAktif->isEmpty())
+      <div class="py-10 text-center bg-pink-50/20 rounded-2xl border border-dashed border-pink-200">
+        <div class="w-12 h-12 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center mx-auto mb-3">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <div class="font-bold text-slate-800 text-sm">Tidak ada peminjaman aktif</div>
+        <p class="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+          Anda tidak memiliki peminjaman yang sedang menunggu, disetujui, atau dipinjam saat ini.
+        </p>
+        <div class="mt-4">
+          <a href="{{ route('alat.beranda') }}" class="btn btn-sm">
+            Mulai Ajukan Peminjaman
+          </a>
+        </div>
       </div>
-      <a href="{{ route('alat.hasil') }}" class="btn btn-secondary btn-sm">
-        Buka Katalog Lengkap &rarr;
-      </a>
-    </div>
-
-    <div class="card-body">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        @foreach($alatTersedia as $alat)
-          <div class="rounded-md border border-[#e5e7eb] bg-white p-3.5 flex flex-col justify-between hover:border-blue-400 transition-colors">
-            <div>
-              <div class="flex items-center justify-between gap-1 mb-2">
-                <span class="code-badge">{{ $alat->kode }}</span>
-                <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  {{ $alat->stok }} Unit
-                </span>
+    @else
+      <div class="space-y-4">
+        @foreach($peminjamanAktif as $item)
+          <div class="p-4 rounded-2xl border border-slate-200 bg-white hover:border-pink-300 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm">
+            <div class="flex items-start gap-4">
+              <div class="w-12 h-12 rounded-xl bg-pink-50 text-pink-700 flex items-center justify-center font-bold text-sm font-mono border border-pink-100 flex-shrink-0">
+                #{{ $item->id }}
               </div>
-              <h4 class="font-semibold text-xs text-[#202938] line-clamp-1 mb-1">{{ $alat->nama }}</h4>
-              <p class="text-[11px] text-[#64748b] line-clamp-2 mb-3">{{ $alat->deskripsi ?? 'Alat laboratorium praktikum akademik.' }}</p>
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <h3 class="font-bold text-base text-slate-900">{{ $item->alat->nama }}</h3>
+                  <x-badge :status="$item->status" />
+                </div>
+                <div class="text-xs text-slate-500 flex flex-wrap gap-x-4 gap-y-1">
+                  <span>Kode: <strong class="text-slate-700">{{ $item->alat->kode }}</strong></span>
+                  <span>Jumlah: <strong class="text-pink-700">{{ $item->jumlah }} unit</strong></span>
+                  <span>Jadwal: <strong class="text-slate-700">{{ $item->tanggal_pinjam->format('d M') }} - {{ $item->tanggal_selesai->format('d M Y') }}</strong> ({{ $item->durasi }} hari)</span>
+                </div>
+                @if($item->catatan_petugas)
+                  <div class="mt-2 text-xs bg-amber-50 text-amber-800 p-2 rounded-lg border border-amber-200">
+                    <strong>Catatan Petugas:</strong> {{ $item->catatan_petugas }}
+                  </div>
+                @endif
+              </div>
             </div>
-            <div class="pt-2.5 border-t border-[#f1f5f9] flex items-center justify-between">
-              <span class="text-[11px] text-slate-500">{{ $alat->kategori }}</span>
-              <a href="{{ route('alat.pinjam', $alat->id) }}" class="btn btn-primary btn-sm">
-                Pinjam
+
+            <div class="flex items-center gap-2 self-end md:self-center">
+              <a href="{{ route('peminjaman.detail', $item->id) }}" class="btn btn-secondary btn-sm">
+                Lihat Bukti Pengajuan
               </a>
             </div>
           </div>
         @endforeach
       </div>
+    @endif
+  </div>
+
+  <!-- Katalog Alat Siap Dipinjam (Katalog Singkat) -->
+  <div class="card p-6 bg-white">
+    <div class="flex items-center justify-between mb-5">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">Katalog Alat Tersedia</h2>
+        <p class="text-xs text-slate-500">Pilihan alat laboratorium yang memiliki stok tersedia untuk dipinjam</p>
+      </div>
+      <a href="{{ route('alat.hasil') }}" class="btn btn-secondary btn-sm">
+        Lihat Seluruh Katalog &rarr;
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      @foreach($alatTersedia as $alat)
+        <div class="rounded-2xl border border-pink-100 bg-[#fdfafb] p-4 flex flex-col justify-between hover:border-pink-300 hover:shadow-md transition-all">
+          <div>
+            <div class="flex items-center justify-between text-xs mb-2">
+              <span class="code-label">{{ $alat->kode }}</span>
+              <span class="font-bold text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                {{ $alat->stok }} Tersedia
+              </span>
+            </div>
+            <h3 class="font-bold text-sm text-slate-900 mb-1 line-clamp-1">{{ $alat->nama }}</h3>
+            <p class="text-xs text-slate-500 line-clamp-2 mb-3">{{ $alat->deskripsi ?? 'Alat laboratorium praktikum.' }}</p>
+          </div>
+          <div class="pt-3 border-t border-pink-100 flex items-center justify-between">
+            <span class="text-[11px] text-slate-400 font-medium">{{ $alat->kategori }}</span>
+            <a href="{{ route('alat.pinjam', $alat->id) }}" class="btn btn-sm text-xs font-semibold">
+              Pinjam
+            </a>
+          </div>
+        </div>
+      @endforeach
     </div>
   </div>
 </div>

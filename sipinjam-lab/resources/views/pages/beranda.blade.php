@@ -1,57 +1,56 @@
 @extends('layouts.app')
 
-@section('title', 'Katalog Peminjaman Alat Laboratorium')
+@section('title', 'Katalog Peminjaman Alat Laboratorium - SIPINJAM-LAB')
 
 @section('content')
-<div class="space-y-6">
-  <!-- Portal Header Banner (Navy Enterprise) -->
-  <div class="rounded-lg bg-[#172235] text-white p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 border border-[#233249]">
+<div class="space-y-8">
+  <!-- Hero Section -->
+  <div class="rounded-3xl bg-gradient-to-r from-pink-600 via-rose-500 to-pink-400 p-8 sm:p-10 text-white shadow-xl shadow-pink-200/50 flex flex-col md:flex-row md:items-center justify-between gap-6">
     <div class="max-w-2xl">
-      <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded bg-blue-900/60 border border-blue-500/30 text-blue-300 text-[11px] font-semibold mb-2 uppercase tracking-wider">
-        Portal Informasi Laboratorium Terpadu
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 backdrop-blur-sm text-xs font-semibold mb-3">
+        <span class="w-2 h-2 rounded-full bg-emerald-300"></span>
+        Sistem Informasi Peminjaman Alat Laboratorium
       </div>
-      <h1 class="text-xl sm:text-2xl font-bold text-white mb-2">
-        Katalog Peralatan Laboratorium & Praktikum
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white mb-3">
+        Temukan Alat Praktikum & Eksperimen Anda
       </h1>
-      <p class="text-xs text-slate-300 leading-relaxed">
-        Pemeriksaan ketersediaan unit fisik dan pengajuan peminjaman alat eksperimen secara resmi untuk mahasiswa dan dosen.
+      <p class="text-pink-100 text-sm leading-relaxed">
+        Layanan peminjaman alat laboratorium terpadu, cepat, dan transparan. Cek ketersediaan stok fisik dan ajukan peminjaman secara online dengan mudah.
       </p>
     </div>
 
     @guest
-      <div class="flex items-center gap-2 self-start md:self-auto flex-shrink-0">
-        <a href="{{ route('login') }}" class="btn btn-secondary btn-sm">
-          Masuk
-        </a>
-        <a href="{{ route('register') }}" class="btn btn-primary btn-sm">
-          Registrasi Mahasiswa
+      <div class="p-4 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 text-center flex-shrink-0">
+        <div class="text-xs font-semibold text-pink-100 mb-2">Ingin mengajukan alat?</div>
+        <a href="{{ route('register') }}" class="btn btn-sm bg-white text-pink-700 hover:bg-pink-50 font-bold w-full">
+          Daftar Sebagai Mahasiswa
         </a>
       </div>
     @endguest
   </div>
 
-  <!-- Search Filter Card -->
-  <div class="card p-5">
-    <div class="mb-3">
-      <h2 class="text-sm font-semibold text-[#202938]">Pencarian Inventaris Alat</h2>
-      <p class="text-xs text-[#64748b]">Cari berdasarkan nama alat, kode identifikasi, atau bidang laboratorium</p>
+  <!-- Search & Filter Component -->
+  <div class="card p-6 bg-white border-pink-100 shadow-sm">
+    <div class="mb-4">
+      <h2 class="text-lg font-bold text-slate-900">Pencarian Alat Laboratorium</h2>
+      <p class="text-xs text-slate-500">Filter berdasarkan kata kunci nama, kode alat, atau bidang kategori laboratorium</p>
     </div>
     <x-search-form :daftar-kategori="$daftarKategori" />
   </div>
 
   <!-- Alat Tersedia Section -->
   <section class="space-y-4">
-    <div class="flex items-center justify-between pb-1 border-b border-[#e5e7eb]">
+    <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-base font-bold text-[#202938]">Alat Tersedia Siap Dipinjam</h2>
-        <p class="text-xs text-[#64748b]">Unit peralatan yang memiliki ketersediaan fisik di laboratorium saat ini</p>
+        <h2 class="text-xl font-bold text-slate-900">Alat Laboratorium Tersedia</h2>
+        <p class="text-xs text-slate-500">Pilihan unit alat yang siap dipinjam untuk keperluan praktikum</p>
       </div>
       <a href="{{ route('alat.hasil') }}" class="btn btn-secondary btn-sm">
-        Lihat Seluruh Katalog &rarr;
+        Lihat Semua Alat &rarr;
       </a>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+    <div class="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
       @foreach ($tersedia as $alat)
         <x-alat-card :alat="$alat" />
       @endforeach

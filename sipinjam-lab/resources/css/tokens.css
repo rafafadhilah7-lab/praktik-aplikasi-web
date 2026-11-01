@@ -1,76 +1,80 @@
-/* SIPINJAM-LAB - Design Tokens (Professional Enterprise & Academic System) */
+/* SIPINJAM-LAB - Design Tokens (Modern Pastel Pink & Clean Aesthetics) */
 :root {
-  /* Palet Warna Enterprise */
-  --color-primary: #2563eb;        /* Blue 600 */
-  --color-primary-hover: #1d4ed8;  /* Blue 700 */
-  --color-primary-light: #3b82f6;  /* Blue 500 */
-  --color-primary-soft: #eff6ff;   /* Blue 50 */
-  --color-primary-border: #bfdbfe; /* Blue 200 */
+  /* Warna Utama & Pastel Pink */
+  --color-primary: #be185d; /* Pink 700 - Kontras dan tegas */
+  --color-primary-hover: #9d174d; /* Pink 800 */
+  --color-primary-light: #f472b6; /* Pink 400 */
+  --color-primary-soft: #fdf2f8; /* Pink 50 - Latar sangat lembut */
+  --color-primary-border: #fce7f3; /* Pink 100 */
   --color-on-primary: #ffffff;
 
-  /* Sidebar & Dark Surfaces */
-  --color-sidebar: #172235;        /* Deep Navy */
-  --color-sidebar-hover: #1e2d45;  /* Navy Light */
-  --color-sidebar-active: #233452; /* Navy Selected */
-  --color-sidebar-text: #94a3b8;   /* Slate 400 */
-  --color-sidebar-text-active: #ffffff;
-  --color-sidebar-border: #233249;
+  --color-action: #db2777; /* Pink 600 */
+  --color-action-hover: #be185d;
+  --color-on-action: #ffffff;
 
-  /* Permukaan & Latar Belakang */
-  --color-bg: #f5f6f8;            /* Very light clean gray */
-  --color-surface: #ffffff;        /* Pure white */
+  /* Warna Netral & Permukaan */
+  --color-surface: #fbf8fa; /* Off-white dengan nuansa hangat */
   --color-card: #ffffff;
-  --color-text: #202938;           /* Primary text / Charcoal Slate */
-  --color-text-muted: #64748b;     /* Secondary text / Slate 500 */
-  --color-placeholder: #94a3b8;    /* Slate 400 */
-  --color-border: #e5e7eb;         /* Clean 1px gray border */
-  --color-border-subtle: #f1f5f9;  /* Gray 100 */
+  --color-inset: #fdf2f8;
+  --color-text: #1e293b; /* Slate 800 */
+  --color-text-muted: #64748b; /* Slate 500 */
+  --color-placeholder: #94a3b8; /* Slate 400 */
+  --color-border: #f1e2e9;
+  --color-border-strong: #f472b6;
 
-  /* Warna Status Enterprise */
-  --color-success: #15803d;        /* Green 700 */
-  --color-success-bg: #f0fdf4;     /* Green 50 */
-  --color-success-border: #bbf7d0; /* Green 200 */
+  /* Warna Status */
+  --color-success: #059669;
+  --color-warning: #d97706;
+  --color-danger: #e11d48;
+  --color-info: #0284c7;
 
-  --color-warning: #d97706;        /* Amber 600 */
-  --color-warning-bg: #fffbeb;     /* Amber 50 */
-  --color-warning-border: #fde68a; /* Amber 200 */
+  /* Badge Status (Pastel Tones) */
+  --badge-success-bg: #ecfdf5;  --badge-success-text: #065f46;  --badge-success-border: #a7f3d0;
+  --badge-warning-bg: #fffbeb;  --badge-warning-text: #92400e;  --badge-warning-border: #fde68a;
+  --badge-info-bg:    #f0f9ff;  --badge-info-text:    #0369a1;  --badge-info-border:    #bae6fd;
+  --badge-danger-bg:  #fff1f2;  --badge-danger-text:  #be123c;  --badge-danger-border:  #fecdd3;
+  --badge-purple-bg:  #faf5ff;  --badge-purple-text:  #6b21a8;  --badge-purple-border:  #e9d5ff;
 
-  --color-danger: #dc2626;         /* Red 600 */
-  --color-danger-bg: #fef2f2;      /* Red 50 */
-  --color-danger-border: #fecaca;  /* Red 200 */
+  /* Tipografi */
+  --font-heading: "Plus Jakarta Sans", "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", "Geist", system-ui, -apple-system, sans-serif;
+  --text-display: 38px;   --lh-display: 46px;
+  --text-h1: 28px;        --lh-h1: 36px;
+  --text-h2: 20px;        --lh-h2: 28px;
+  --text-h3: 16px;        --lh-h3: 24px;
+  --text-body-lg: 16px;   --lh-body-lg: 26px;
+  --text-body: 14px;      --lh-body: 22px;
+  --text-caption: 13px;   --lh-caption: 18px;
+  --text-label: 12px;     --lh-label: 16px;
+  --text-code: 11px;      --lh-code: 14px;
 
-  --color-info: #0284c7;           /* Sky 600 */
-  --color-info-bg: #f0f9ff;        /* Sky 50 */
-  --color-info-border: #bae6fd;    /* Sky 200 */
+  /* Jarak */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
 
-  /* Tipografi - Inter */
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  --font-heading: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Sudut Membulat & Efek Halus */
+  --radius-xs: 6px;
+  --radius-sm: 8px;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --border-width: 1px;
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  --shadow-card: 0 4px 20px -2px rgba(219, 39, 119, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.03);
+  --shadow-modal: 0 20px 40px -8px rgba(219, 39, 119, 0.12), 0 6px 16px -4px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 10px 25px -4px rgba(219, 39, 119, 0.12), 0 4px 10px -2px rgba(0, 0, 0, 0.04);
+  --control-height: 42px;
+  --focus-ring: 0 0 0 3px rgba(244, 114, 182, 0.35);
+}
 
-  --text-xs: 12px;
-  --text-sm: 13px;
-  --text-base: 14px;
-  --text-lg: 16px;
-  --text-xl: 18px;
-  --text-2xl: 20px;
-  --text-3xl: 24px;
-
-  /* Jarak & Ukuran Komponen */
-  --control-height: 38px;
-  --control-height-sm: 32px;
-  --control-height-lg: 42px;
-
-  /* Radius (Sekitar 8px) */
-  --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius: 8px;
-  --radius-lg: 10px;
-
-  /* Shadows (Minimalis & Hanya Jika Diperlukan) */
-  --shadow-none: none;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
-  --shadow-modal: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.06);
-  --focus-ring: 0 0 0 2px rgba(37, 99, 235, 0.2);
+@media (max-width: 767px) {
+  :root {
+    --text-display: 28px;  --lh-display: 36px;
+    --text-h1: 22px;       --lh-h1: 30px;
+  }
 }
