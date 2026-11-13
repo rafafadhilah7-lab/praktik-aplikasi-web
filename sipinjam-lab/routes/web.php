@@ -32,8 +32,6 @@ Route::view('/komponen', 'pages.komponen')->name('komponen');
 Route::get('/alat', [AlatController::class, 'beranda'])->name('alat.beranda');
 Route::get('/alat/hasil', [AlatController::class, 'hasil'])->name('alat.hasil');
 Route::get('/alat/{id}', [AlatController::class, 'detail'])->whereNumber('id')->name('alat.detail');
-Route::get('/alat/{id}/pinjam', [AlatController::class, 'formPinjam'])->whereNumber('id')->name('alat.pinjam');
-Route::post('/alat/{id}/pinjam', [AlatController::class, 'ajukan'])->whereNumber('id')->name('alat.ajukan');
 
 // --------------------------------------------------------------------------
 // 2. Autentikasi (Tamu / Guest)
@@ -68,6 +66,10 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:peminjam'])->group(function () {
     Route::get('/peminjam/dashboard', [DashboardController::class, 'peminjam'])->name('peminjam.dashboard');
     Route::get('/peminjam/riwayat', [PeminjamanManageController::class, 'riwayatSaya'])->name('peminjam.riwayat');
+
+    // Pengajuan peminjaman (wajib login sebagai peminjam)
+    Route::get('/alat/{id}/pinjam', [AlatController::class, 'formPinjam'])->whereNumber('id')->name('alat.pinjam');
+    Route::post('/alat/{id}/pinjam', [AlatController::class, 'ajukan'])->whereNumber('id')->name('alat.ajukan');
 });
 
 // --------------------------------------------------------------------------
