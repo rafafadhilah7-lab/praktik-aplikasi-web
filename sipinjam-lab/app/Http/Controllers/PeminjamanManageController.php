@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 class PeminjamanManageController extends Controller
@@ -63,16 +64,13 @@ class PeminjamanManageController extends Controller
 
     /**
      * Menampilkan detail satu transaksi pengajuan peminjaman.
+     * Otorisasi lewat PeminjamanPolicy@view (petugas atau pemilik).
      */
     public function detail(int $id)
     {
         $peminjaman = Peminjaman::with(['alat', 'user'])->findOrFail($id);
-        $user = Auth::user();
 
-        // Otorisasi: Peminjam hanya boleh melihat miliknya sendiri
-        if ($user->isPeminjam() && $peminjaman->user_id !== $user->id && $peminjaman->nim !== $user->nim) {
-            abort(403, 'Anda tidak berhak melihat data pengajuan peminjaman milik pengguna lain.');
-        }
+        Gate::authorize('view', $peminjaman);
 
         return view('peminjaman.detail', compact('peminjaman'));
     }
@@ -82,6 +80,8 @@ class PeminjamanManageController extends Controller
      */
     public function setujui(Request $request, int $id)
     {
+        Gate::authorize('review', Peminjaman::findOrFail($id));
+
         $request->validate([
             'catatan' => ['nullable', 'string', 'max:500'],
         ]);
@@ -127,6 +127,8 @@ class PeminjamanManageController extends Controller
      */
     public function tolak(Request $request, int $id)
     {
+        Gate::authorize('review', Peminjaman::findOrFail($id));
+
         $data = $request->validate([
             'alasan' => ['required', 'string', 'max:500'],
         ], [
@@ -155,6 +157,8 @@ class PeminjamanManageController extends Controller
      */
     public function serahkan(Request $request, int $id)
     {
+        Gate::authorize('review', Peminjaman::findOrFail($id));
+
         DB::transaction(function () use ($id) {
             $peminjaman = Peminjaman::lockForUpdate()->findOrFail($id);
 
@@ -177,6 +181,8 @@ class PeminjamanManageController extends Controller
      */
     public function kembalikan(Request $request, int $id)
     {
+        Gate::authorize('review', Peminjaman::findOrFail($id));
+
         $request->validate([
             'kondisi' => ['nullable', 'string', 'max:500'],
         ]);
@@ -207,19 +213,17 @@ class PeminjamanManageController extends Controller
     }
 
     /**
-     * Menampilkan riwayat peminjaman khusus milik pengguna yang sedang login (Peminjam).
+     * Menampilkan riwayat peminjaman milik pengguna yang sedang login (Peminjam).
+     * Kepemilikan ditentukan hanya dari user_id.
      */
     public function riwayatSaya(Request $request)
     {
         $user = Auth::user();
         $status = (string) $request->query('status', '');
 
-        $query = Peminjaman::where(function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-            if ($user->nim) {
-                $q->orWhere('nim', $user->nim);
-            }
-        })->with('alat')->latest();
+        $query = Peminjaman::where('user_id', $user->id)
+            ->with('alat')
+            ->latest();
 
         if ($status !== '' && in_array($status, Peminjaman::STATUS, true)) {
             $query->where('status', $status);
