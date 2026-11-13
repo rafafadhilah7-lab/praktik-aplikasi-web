@@ -119,10 +119,24 @@ class Peminjaman extends Model
     }
 
     /**
+     * Peminjaman terlambat: alat masih dipinjam tetapi
+     * tanggal selesai sudah lewat dari hari ini.
+     */
+    public function isTerlambat(): bool
+    {
+        return $this->status === self::STATUS_DIPINJAM
+            && $this->tanggal_selesai !== null
+            && $this->tanggal_selesai->format('Y-m-d') < now()->toDateString();
+    }
+
+    /**
      * Menghitung jumlah unit maksimum yang terpakai
      * pada satu hari dalam rentang tanggal.
      *
      * Pengajuan berstatus tidak aktif tidak dihitung.
+     * Peminjaman berstatus "dipinjam" yang sudah lewat tanggal selesai
+     * tetap dihitung memakai unit pada seluruh rentang, karena alat
+     * belum dikembalikan ke laboratorium.
      */
     public static function puncakTerpakai(
         int $alatId,
@@ -130,11 +144,20 @@ class Peminjaman extends Model
         string $selesai,
         ?int $abaikanId = null
     ): int {
+        $hariIni = now()->toDateString();
+
         $query = static::query()
             ->where('alat_id', $alatId)
             ->whereIn('status', self::AKTIF)
             ->whereDate('tanggal_pinjam', '<=', $selesai)
-            ->whereDate('tanggal_selesai', '>=', $mulai);
+            ->where(function ($q) use ($mulai, $hariIni) {
+                $q->whereDate('tanggal_selesai', '>=', $mulai)
+                    ->orWhere(function ($terlambat) use ($hariIni) {
+                        $terlambat
+                            ->where('status', self::STATUS_DIPINJAM)
+                            ->whereDate('tanggal_selesai', '<', $hariIni);
+                    });
+            });
 
         if ($abaikanId !== null) {
             $query->where('id', '!=', $abaikanId);
@@ -144,6 +167,7 @@ class Peminjaman extends Model
             'tanggal_pinjam',
             'tanggal_selesai',
             'jumlah',
+            'status',
         ]);
 
         $awal = new DateTimeImmutable($mulai);
@@ -162,9 +186,12 @@ class Peminjaman extends Model
                 $tanggalPinjam = $item->tanggal_pinjam->format('Y-m-d');
                 $tanggalSelesai = $item->tanggal_selesai->format('Y-m-d');
 
+                $terlambat = $item->status === self::STATUS_DIPINJAM
+                    && $tanggalSelesai < $hariIni;
+
                 if (
                     $tanggalPinjam <= $hari &&
-                    $tanggalSelesai >= $hari
+                    ($terlambat || $tanggalSelesai >= $hari)
                 ) {
                     $terpakai += (int) $item->jumlah;
                 }
