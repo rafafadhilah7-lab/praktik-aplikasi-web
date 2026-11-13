@@ -1,100 +1,253 @@
 <?php
 
-use App\Http\Controllers\AlatController;
-use App\Http\Controllers\AlatManageController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PeminjamanManageController;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\UserManageController;
-use Illuminate\Support\Facades\Route;
+namespace App\Http\Controllers;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes - SIPINJAM-LAB
-|--------------------------------------------------------------------------
-*/
+use App\Models\Alat;
+use App\Models\Peminjaman;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
 
-// Redirect halaman utama ke katalog alat
-Route::get('/', function () {
-    return redirect()->route('alat.beranda');
-});
+class AlatController extends Controller
+{
+    /**
+     * Mengambil daftar kategori unik dari database.
+     */
+    private function daftarKategori(): array
+    {
+        return Alat::query()
+            ->select('kategori')
+            ->distinct()
+            ->whereNotNull('kategori')
+            ->orderBy('kategori')
+            ->pluck('kategori')
+            ->all();
+    }
 
-// Halaman awal praktikum & galeri komponen UI (tetap dipertahankan)
-Route::get('/awal', function () {
-    return view('awal');
-});
-Route::view('/komponen', 'pages.komponen')->name('komponen');
+    /**
+     * Apakah NIM pada akun sudah lengkap dan valid (8-20 digit angka).
+     */
+    private function nimAkunValid($user): bool
+    {
+        return $user !== null
+            && is_string($user->nim)
+            && preg_match('/^[0-9]{8,20}$/', $user->nim) === 1;
+    }
 
-// --------------------------------------------------------------------------
-// 1. Katalog & Pencarian Alat (Publik)
-// --------------------------------------------------------------------------
-Route::get('/alat', [AlatController::class, 'beranda'])->name('alat.beranda');
-Route::get('/alat/hasil', [AlatController::class, 'hasil'])->name('alat.hasil');
-Route::get('/alat/{id}', [AlatController::class, 'detail'])->whereNumber('id')->name('alat.detail');
+    /**
+     * Halaman beranda.
+     */
+    public function beranda()
+    {
+        $tersedia = Alat::query()
+            ->where('stok', '>', 0)
+            ->limit(6)
+            ->get();
 
-// --------------------------------------------------------------------------
-// 2. Autentikasi (Tamu / Guest)
-// --------------------------------------------------------------------------
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
-});
+        $totalAlat = Alat::count();
+        $totalTersedia = Alat::where('stok', '>', 0)->count();
 
-// --------------------------------------------------------------------------
-// 3. Area Pengguna Terautentikasi (Umum untuk Semua Role)
-// --------------------------------------------------------------------------
-Route::middleware('auth')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+        return view('pages.beranda', [
+            'daftarKategori' => $this->daftarKategori(),
+            'tersedia' => $tersedia,
+            'totalAlat' => $totalAlat,
+            'totalTersedia' => $totalTersedia,
+        ]);
+    }
 
-    // Profil Pengguna Sendiri
-    Route::get('/profil', [ProfileController::class, 'edit'])->name('profil.edit');
-    Route::put('/profil', [ProfileController::class, 'update'])->name('profil.update');
+    /**
+     * Halaman hasil pencarian alat.
+     */
+    public function hasil(Request $request)
+    {
+        $q = trim((string) $request->query('q', ''));
+        $kategori = (string) $request->query('kategori', '');
+        $tanggal = (string) $request->query('tanggal', '');
 
-    // Detail Peminjaman (diotorisasi di controller)
-    Route::get('/peminjaman/{id}', [PeminjamanManageController::class, 'detail'])
-        ->whereNumber('id')
-        ->name('peminjaman.detail');
-});
+        $query = Alat::query();
 
-// --------------------------------------------------------------------------
-// 4. Area Khusus Peminjam (Mahasiswa)
-// --------------------------------------------------------------------------
-Route::middleware(['auth', 'role:peminjam'])->group(function () {
-    Route::get('/peminjam/dashboard', [DashboardController::class, 'peminjam'])->name('peminjam.dashboard');
-    Route::get('/peminjam/riwayat', [PeminjamanManageController::class, 'riwayatSaya'])->name('peminjam.riwayat');
+        if ($q !== '') {
+            $query->where(function ($builder) use ($q) {
+                $builder->where('nama', 'like', "%{$q}%")
+                    ->orWhere('kode', 'like', "%{$q}%")
+                    ->orWhere('deskripsi', 'like', "%{$q}%");
+            });
+        }
 
-    // Pengajuan peminjaman (wajib login sebagai peminjam)
-    Route::get('/alat/{id}/pinjam', [AlatController::class, 'formPinjam'])->whereNumber('id')->name('alat.pinjam');
-    Route::post('/alat/{id}/pinjam', [AlatController::class, 'ajukan'])->whereNumber('id')->name('alat.ajukan');
-});
+        if ($kategori !== '') {
+            $query->where('kategori', $kategori);
+        }
 
-// --------------------------------------------------------------------------
-// 5. Area Khusus Laboran & Admin (Pengelolaan Transaksi Peminjaman)
-// --------------------------------------------------------------------------
-Route::middleware(['auth', 'role:laboran,admin'])->group(function () {
-    Route::get('/laboran/dashboard', [DashboardController::class, 'laboran'])->name('laboran.dashboard');
+        $hasil = $query->paginate(9)->withQueryString();
 
-    // Manajemen Transaksi & Riwayat Seluruh Peminjaman
-    Route::get('/peminjaman', [PeminjamanManageController::class, 'index'])->name('peminjaman.index');
-    Route::post('/peminjaman/{id}/setujui', [PeminjamanManageController::class, 'setujui'])->whereNumber('id')->name('peminjaman.setujui');
-    Route::post('/peminjaman/{id}/tolak', [PeminjamanManageController::class, 'tolak'])->whereNumber('id')->name('peminjaman.tolak');
-    Route::post('/peminjaman/{id}/serahkan', [PeminjamanManageController::class, 'serahkan'])->whereNumber('id')->name('peminjaman.serahkan');
-    Route::post('/peminjaman/{id}/kembalikan', [PeminjamanManageController::class, 'kembalikan'])->whereNumber('id')->name('peminjaman.kembalikan');
-});
+        return view('pages.hasil', [
+            'hasil' => $hasil,
+            'q' => $q,
+            'kategori' => $kategori,
+            'tanggal' => $tanggal,
+            'daftarKategori' => $this->daftarKategori(),
+        ]);
+    }
 
-// --------------------------------------------------------------------------
-// 6. Area Khusus Admin (Pengelolaan Alat, Pengguna & Konfigurasi Sistem)
-// --------------------------------------------------------------------------
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'admin'])->name('dashboard');
+    /**
+     * Halaman detail alat.
+     */
+    public function detail(int $id)
+    {
+        $alat = Alat::findOrFail($id);
 
-    // Manajemen Alat
-    Route::resource('alat', AlatManageController::class)->except(['show']);
+        return view('pages.detail-alat', compact('alat'));
+    }
 
-    // Manajemen Pengguna & Role
-    Route::resource('users', UserManageController::class)->except(['show']);
-});
+    /**
+     * Halaman formulir peminjaman.
+     */
+    public function formPinjam(int $id)
+    {
+        $alat = Alat::findOrFail($id);
+
+        if ($alat->stok < 1) {
+            return redirect()
+                ->route('alat.detail', $id)
+                ->with('error', 'Alat sedang tidak tersedia untuk dipinjam.');
+        }
+
+        $user = Auth::user();
+
+        if (! $this->nimAkunValid($user)) {
+            return redirect()
+                ->route('profil.edit')
+                ->with('error', 'Lengkapi NIM (8-20 digit angka) pada profil Anda sebelum mengajukan peminjaman.');
+        }
+
+        return view('pages.form-pinjam', compact('alat', 'user'));
+    }
+
+    /**
+     * Memvalidasi dan menyimpan pengajuan peminjaman.
+     * Nama dan NIM peminjam selalu diambil dari akun yang login,
+     * bukan dari input form. Setelah berhasil, diarahkan ke halaman
+     * konfirmasi (pola Post/Redirect/Get) agar refresh tidak
+     * membuat pengajuan ganda.
+     */
+    public function ajukan(Request $request, int $id)
+    {
+        $user = Auth::user();
+
+        if (! $this->nimAkunValid($user)) {
+            return redirect()
+                ->route('profil.edit')
+                ->with('error', 'Lengkapi NIM (8-20 digit angka) pada profil Anda sebelum mengajukan peminjaman.');
+        }
+
+        $data = $request->validate([
+            'tanggal_pinjam' => [
+                'required',
+                'date_format:Y-m-d',
+                'after_or_equal:today',
+            ],
+            'durasi' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:30',
+            ],
+            'jumlah' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+            'keperluan' => [
+                'required',
+                'string',
+                'max:500',
+            ],
+        ], [
+            'tanggal_pinjam.required' => 'Tanggal peminjaman wajib ditentukan.',
+            'tanggal_pinjam.after_or_equal' => 'Tanggal peminjaman tidak boleh di masa lampau.',
+            'durasi.required' => 'Durasi peminjaman wajib diisi.',
+            'durasi.min' => 'Durasi peminjaman minimal 1 hari.',
+            'durasi.max' => 'Durasi peminjaman maksimal 30 hari.',
+            'jumlah.required' => 'Jumlah unit alat wajib diisi.',
+            'jumlah.min' => 'Jumlah unit alat minimal 1 unit.',
+            'keperluan.required' => 'Keperluan peminjaman wajib dijelaskan.',
+        ]);
+
+        // Identitas peminjam dari akun, bukan dari form.
+        $userId = $user->id;
+        $namaPeminjam = $user->name;
+        $nim = $user->nim;
+
+        $peminjaman = DB::transaction(function () use ($data, $id, $userId, $namaPeminjam, $nim) {
+            $alat = Alat::query()
+                ->lockForUpdate()
+                ->findOrFail($id);
+
+            if ($alat->stok < 1) {
+                throw ValidationException::withMessages([
+                    'jumlah' => 'Alat sedang tidak tersedia untuk dipinjam.',
+                ]);
+            }
+
+            if ((int) $data['jumlah'] > (int) $alat->stok) {
+                throw ValidationException::withMessages([
+                    'jumlah' => 'Jumlah peminjaman melebihi total stok alat yang ada (' . $alat->stok . ' unit).',
+                ]);
+            }
+
+            $tanggalMulai = $data['tanggal_pinjam'];
+
+            $tanggalSelesai = Carbon::parse($tanggalMulai)
+                ->addDays((int) $data['durasi'] - 1)
+                ->toDateString();
+
+            $terpakai = Peminjaman::puncakTerpakai(
+                $alat->id,
+                $tanggalMulai,
+                $tanggalSelesai
+            );
+
+            if (
+                $terpakai + (int) $data['jumlah'] > (int) $alat->stok
+            ) {
+                throw ValidationException::withMessages([
+                    'jumlah' => 'Stok tidak mencukupi pada tanggal tersebut. Sudah teralokasi ' . $terpakai . ' unit dari total ' . $alat->stok . ' unit. Silakan pilih tanggal atau jumlah lain.',
+                ]);
+            }
+
+            return Peminjaman::create([
+                'user_id' => $userId,
+                'alat_id' => $alat->id,
+                'nama_peminjam' => $namaPeminjam,
+                'nim' => $nim,
+                'tanggal_pinjam' => $tanggalMulai,
+                'tanggal_selesai' => $tanggalSelesai,
+                'durasi' => (int) $data['durasi'],
+                'jumlah' => (int) $data['jumlah'],
+                'keperluan' => $data['keperluan'],
+                'status' => Peminjaman::STATUS_MENUNGGU,
+            ]);
+        });
+
+        return redirect()->route('peminjaman.konfirmasi', $peminjaman->id);
+    }
+
+    /**
+     * Halaman konfirmasi setelah pengajuan tersimpan.
+     * Hanya pemilik pengajuan yang boleh membukanya (PeminjamanPolicy@view).
+     */
+    public function konfirmasi(int $id)
+    {
+        $peminjaman = Peminjaman::with('alat')->findOrFail($id);
+
+        Gate::authorize('view', $peminjaman);
+
+        return view('pages.konfirmasi-pinjam', [
+            'alat' => $peminjaman->alat,
+            'peminjaman' => $peminjaman,
+        ]);
+    }
+}
