@@ -47,38 +47,37 @@
       @csrf
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Nama Peminjam -->
+        <!-- Nama Peminjam (otomatis dari akun, tidak dikirim lewat form) -->
         <div>
           <label for="nama_peminjam" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-            Nama Peminjam <span class="text-rose-500">*</span>
+            Nama Peminjam
           </label>
           <input type="text"
                  id="nama_peminjam"
-                 name="nama_peminjam"
-                 value="{{ old('nama_peminjam', Auth::user()->name ?? '') }}"
-                 maxlength="100"
-                 required
-                 placeholder="Nama lengkap mahasiswa"
-                 class="field-input">
+                 value="{{ $user->name }}"
+                 readonly
+                 tabindex="-1"
+                 class="field-input bg-slate-50 text-slate-600 cursor-not-allowed">
         </div>
 
-        <!-- NIM -->
+        <!-- NIM (otomatis dari akun, tidak dikirim lewat form) -->
         <div>
           <label for="nim" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-            NIM Mahasiswa <span class="text-rose-500">*</span>
+            NIM Mahasiswa
           </label>
           <input type="text"
                  id="nim"
-                 name="nim"
-                 value="{{ old('nim', Auth::user()->nim ?? '') }}"
-                 inputmode="numeric"
-                 pattern="[0-9]{8,20}"
-                 maxlength="20"
-                 required
-                 placeholder="8 - 20 digit angka"
-                 class="field-input font-mono">
+                 value="{{ $user->nim }}"
+                 readonly
+                 tabindex="-1"
+                 class="field-input font-mono bg-slate-50 text-slate-600 cursor-not-allowed">
         </div>
       </div>
+
+      <p class="-mt-2 text-[11px] text-slate-400">
+        Nama dan NIM diambil dari akun Anda.
+        Ada yang salah? <a href="{{ route('profil.edit') }}" class="font-bold text-pink-600 hover:text-pink-700">Perbarui profil</a>.
+      </p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Tanggal Pinjam -->

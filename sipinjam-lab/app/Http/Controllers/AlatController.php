@@ -27,6 +27,16 @@ class AlatController extends Controller
     }
 
     /**
+     * Apakah NIM pada akun sudah lengkap dan valid (8-20 digit angka).
+     */
+    private function nimAkunValid($user): bool
+    {
+        return $user !== null
+            && is_string($user->nim)
+            && preg_match('/^[0-9]{8,20}$/', $user->nim) === 1;
+    }
+
+    /**
      * Halaman beranda.
      */
     public function beranda()
@@ -106,25 +116,31 @@ class AlatController extends Controller
 
         $user = Auth::user();
 
+        if (! $this->nimAkunValid($user)) {
+            return redirect()
+                ->route('profil.edit')
+                ->with('error', 'Lengkapi NIM (8-20 digit angka) pada profil Anda sebelum mengajukan peminjaman.');
+        }
+
         return view('pages.form-pinjam', compact('alat', 'user'));
     }
 
     /**
      * Memvalidasi dan menyimpan pengajuan peminjaman.
+     * Nama dan NIM peminjam selalu diambil dari akun yang login,
+     * bukan dari input form.
      */
     public function ajukan(Request $request, int $id)
     {
+        $user = Auth::user();
+
+        if (! $this->nimAkunValid($user)) {
+            return redirect()
+                ->route('profil.edit')
+                ->with('error', 'Lengkapi NIM (8-20 digit angka) pada profil Anda sebelum mengajukan peminjaman.');
+        }
+
         $data = $request->validate([
-            'nama_peminjam' => [
-                'required',
-                'string',
-                'max:100',
-            ],
-            'nim' => [
-                'required',
-                'string',
-                'regex:/^[0-9]{8,20}$/',
-            ],
             'tanggal_pinjam' => [
                 'required',
                 'date_format:Y-m-d',
@@ -147,9 +163,6 @@ class AlatController extends Controller
                 'max:500',
             ],
         ], [
-            'nama_peminjam.required' => 'Nama peminjam wajib diisi.',
-            'nim.required' => 'NIM wajib diisi.',
-            'nim.regex' => 'NIM harus berupa 8 sampai 20 digit angka.',
             'tanggal_pinjam.required' => 'Tanggal peminjaman wajib ditentukan.',
             'tanggal_pinjam.after_or_equal' => 'Tanggal peminjaman tidak boleh di masa lampau.',
             'durasi.required' => 'Durasi peminjaman wajib diisi.',
@@ -160,9 +173,12 @@ class AlatController extends Controller
             'keperluan.required' => 'Keperluan peminjaman wajib dijelaskan.',
         ]);
 
-        $userId = Auth::id();
+        // Identitas peminjam dari akun, bukan dari form.
+        $userId = $user->id;
+        $namaPeminjam = $user->name;
+        $nim = $user->nim;
 
-        $peminjaman = DB::transaction(function () use ($data, $id, $userId) {
+        $peminjaman = DB::transaction(function () use ($data, $id, $userId, $namaPeminjam, $nim) {
             $alat = Alat::query()
                 ->lockForUpdate()
                 ->findOrFail($id);
@@ -202,8 +218,8 @@ class AlatController extends Controller
             return Peminjaman::create([
                 'user_id' => $userId,
                 'alat_id' => $alat->id,
-                'nama_peminjam' => $data['nama_peminjam'],
-                'nim' => $data['nim'],
+                'nama_peminjam' => $namaPeminjam,
+                'nim' => $nim,
                 'tanggal_pinjam' => $tanggalMulai,
                 'tanggal_selesai' => $tanggalSelesai,
                 'durasi' => (int) $data['durasi'],
@@ -215,9 +231,15 @@ class AlatController extends Controller
 
         $peminjaman->load('alat');
 
+        // Nama dan NIM ikut dikirim agar view konfirmasi tetap berfungsi.
+        $pengajuan = array_merge($data, [
+            'nama_peminjam' => $namaPeminjam,
+            'nim' => $nim,
+        ]);
+
         return view('pages.konfirmasi-pinjam', [
             'alat' => $peminjaman->alat,
-            'pengajuan' => $data,
+            'pengajuan' => $pengajuan,
             'peminjaman' => $peminjaman,
         ]);
     }
