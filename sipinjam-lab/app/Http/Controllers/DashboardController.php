@@ -132,18 +132,13 @@ class DashboardController extends Controller
 
     /**
      * Dashboard untuk role Peminjam (Mahasiswa).
+     * Kepemilikan data ditentukan hanya dari user_id.
      */
     public function peminjam()
     {
         $user = Auth::user();
 
-        // Mengambil data peminjaman milik user (baik berdasarkan user_id atau pencocokan NIM)
-        $queryUserPeminjaman = Peminjaman::where(function ($q) use ($user) {
-            $q->where('user_id', $user->id);
-            if ($user->nim) {
-                $q->orWhere('nim', $user->nim);
-            }
-        });
+        $queryUserPeminjaman = Peminjaman::where('user_id', $user->id);
 
         $totalPengajuanSaya = (clone $queryUserPeminjaman)->count();
         $pengajuanMenunggu = (clone $queryUserPeminjaman)->where('status', Peminjaman::STATUS_MENUNGGU)->count();
