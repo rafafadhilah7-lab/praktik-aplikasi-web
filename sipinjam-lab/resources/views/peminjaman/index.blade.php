@@ -109,6 +109,13 @@
             </td>
             <td>
               <x-badge :status="$item->status" />
+              @if($item->isTerlambat())
+                <div class="mt-1">
+                  <span class="inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700">
+                    Terlambat
+                  </span>
+                </div>
+              @endif
             </td>
             <td class="text-right">
               <div class="flex items-center justify-end gap-1.5">
