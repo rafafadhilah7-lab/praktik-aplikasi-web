@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\ValidationException;
 
 class AlatController extends Controller
@@ -129,6 +130,8 @@ class AlatController extends Controller
      * Memvalidasi dan menyimpan pengajuan peminjaman.
      * Nama dan NIM peminjam selalu diambil dari akun yang login,
      * bukan dari input form.
+     * Setelah berhasil, pengguna diarahkan (redirect) ke halaman konfirmasi
+     * agar refresh (F5) tidak mengirim ulang form.
      */
     public function ajukan(Request $request, int $id)
     {
@@ -229,13 +232,28 @@ class AlatController extends Controller
             ]);
         });
 
-        $peminjaman->load('alat');
+        return redirect()->route('peminjaman.konfirmasi', $peminjaman->id);
+    }
 
-        // Nama dan NIM ikut dikirim agar view konfirmasi tetap berfungsi.
-        $pengajuan = array_merge($data, [
-            'nama_peminjam' => $namaPeminjam,
-            'nim' => $nim,
-        ]);
+    /**
+     * Halaman konfirmasi setelah pengajuan (GET, aman di-refresh).
+     * Hanya pemilik pengajuan (atau laboran/admin menurut Policy) yang boleh melihat.
+     */
+    public function konfirmasi(int $id)
+    {
+        $peminjaman = Peminjaman::with('alat')->findOrFail($id);
+
+        Gate::authorize('view', $peminjaman);
+
+        // Disusun ulang dari data tersimpan agar view lama tetap berfungsi.
+        $pengajuan = [
+            'tanggal_pinjam' => Carbon::parse($peminjaman->tanggal_pinjam)->toDateString(),
+            'durasi' => $peminjaman->durasi,
+            'jumlah' => $peminjaman->jumlah,
+            'keperluan' => $peminjaman->keperluan,
+            'nama_peminjam' => $peminjaman->nama_peminjam,
+            'nim' => $peminjaman->nim,
+        ];
 
         return view('pages.konfirmasi-pinjam', [
             'alat' => $peminjaman->alat,
