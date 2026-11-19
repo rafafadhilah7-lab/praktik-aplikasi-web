@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Peminjaman;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -144,10 +143,9 @@ class AuthController extends Controller
             'phone' => $validated['phone'] ?? null,
         ]);
 
-        // Tautkan data pengajuan lama jika ada yang memiliki NIM sama
-        Peminjaman::where('nim', $user->nim)
-            ->whereNull('user_id')
-            ->update(['user_id' => $user->id]);
+        // Catatan: pengajuan lama TIDAK ditautkan ke akun baru berdasarkan NIM.
+        // Kepemilikan pengajuan hanya ditentukan oleh user_id, supaya pendaftar baru
+        // tidak mewarisi riwayat pengguna lain yang sudah dihapus.
 
         // Login otomatis setelah registrasi berhasil
         Auth::login($user);
