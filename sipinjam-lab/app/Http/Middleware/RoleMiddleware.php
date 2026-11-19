@@ -45,15 +45,8 @@ class RoleMiddleware
                 ], 403);
             }
 
-            // Redirect user to their own dashboard with warning
-            $redirectRoute = match ($user->role) {
-                'admin' => 'admin.dashboard',
-                'laboran' => 'laboran.dashboard',
-                default => 'peminjam.dashboard',
-            };
-
-            return redirect()->route($redirectRoute)
-                ->with('error', 'Akses ditolak. Anda tidak memiliki izin untuk membuka halaman tersebut.');
+            // Role tidak sesuai: tolak dengan 403 Forbidden.
+            abort(403, 'Akses ditolak. Anda tidak memiliki izin untuk membuka halaman tersebut.');
         }
 
         return $next($request);
