@@ -126,8 +126,9 @@
                       Setujui
                     </button>
                   </form>
+                  {{-- PERBAIKAN XSS: nama dikirim lewat Js::from() agar tanda kutip aman di dalam atribut onclick --}}
                   <button type="button"
-                          onclick="openRejectModal({{ $item->id }}, '{{ $item->nama_peminjam }}', '{{ $item->alat->nama }}')"
+                          onclick="openRejectModal({{ $item->id }}, {{ \Illuminate\Support\Js::from($item->nama_peminjam) }}, {{ \Illuminate\Support\Js::from($item->alat->nama) }})"
                           class="btn btn-danger btn-sm px-2 text-xs" title="Tolak">
                     Tolak
                   </button>
