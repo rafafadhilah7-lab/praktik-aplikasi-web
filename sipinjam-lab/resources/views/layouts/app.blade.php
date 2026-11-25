@@ -1,175 +1,325 @@
+
 <!doctype html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>@yield('title', 'SIPINJAM-LAB') - Sistem Peminjaman Alat Laboratorium</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <!-- Google Fonts: Plus Jakarta Sans & Space Grotesk -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <title>@yield('title', 'SIPINJAM-LAB') - Sistem Peminjaman Alat Laboratorium</title>
 
-  @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen flex flex-col bg-[#fcf9fa] text-[#1e293b]">
 
-  <!-- Top Navigation Header -->
-  <header class="site-header">
-    <div class="site-header-inner">
-      <!-- Brand Logo -->
-      <div class="flex items-center gap-3">
-        <a href="{{ route('alat.beranda') }}" class="flex items-center gap-2.5 text-decoration-none group">
-          <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-pink-600 to-rose-400 flex items-center justify-center text-white shadow-md shadow-pink-200 group-hover:scale-105 transition-transform">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
-            </svg>
-          </div>
-          <div>
-            <div class="font-bold tracking-tight text-lg text-slate-900 group-hover:text-pink-600 transition-colors">
-              SIPINJAM<span class="text-pink-600">-LAB</span>
+<body>
+    <div class="app-shell">
+
+        <!-- SIDEBAR -->
+        <aside class="app-sidebar" id="appSidebar">
+
+            <!-- BRAND -->
+            <div class="sidebar-brand">
+                <a href="{{ route('alat.beranda') }}" class="flex items-center gap-3">
+                    <div class="sidebar-brand-logo">
+                        <svg width="23" height="23" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M9 3h6m-5 0v6.5L4.5 18a2 2 0 001.7 3h11.6a2 2 0 001.7-3L14 9.5V3M8 15h8"/>
+                        </svg>
+                    </div>
+
+                    <div>
+                        <div class="sidebar-brand-name">
+                            SIPINJAM-LAB
+                        </div>
+                        <div class="sidebar-brand-description">
+                            Sistem Peminjaman Alat
+                        </div>
+                    </div>
+                </a>
             </div>
-            <div class="text-[10px] uppercase font-semibold tracking-wider text-pink-500">Sistem Peminjaman Alat</div>
-          </div>
-        </a>
-      </div>
 
-      <!-- Navigation Links -->
-      <nav class="hidden md:flex items-center gap-1">
-        <a href="{{ route('alat.beranda') }}"
-           class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('alat.*') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-slate-600 hover:text-pink-600 hover:bg-pink-50/50' }}">
-          Katalog Alat
-        </a>
+            <!-- NAVIGATION -->
+            <nav class="sidebar-nav">
 
-        @auth
-          @if(Auth::user()->isAdmin())
-            <a href="{{ route('admin.dashboard') }}"
-               class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.dashboard') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-slate-600 hover:text-pink-600 hover:bg-pink-50/50' }}">
-              Dashboard Admin
-            </a>
-            <a href="{{ route('admin.alat.index') }}"
-               class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.alat.*') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-slate-600 hover:text-pink-600 hover:bg-pink-50/50' }}">
-              Kelola Alat
-            </a>
-            <a href="{{ route('peminjaman.index') }}"
-               class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('peminjaman.*') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-slate-600 hover:text-pink-600 hover:bg-pink-50/50' }}">
-              Semua Transaksi
-            </a>
-            <a href="{{ route('admin.users.index') }}"
-               class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('admin.users.*') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-slate-600 hover:text-pink-600 hover:bg-pink-50/50' }}">
-              Pengguna
-            </a>
-          @elseif(Auth::user()->isLaboran())
-            <a href="{{ route('laboran.dashboard') }}"
-               class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('laboran.dashboard') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-slate-600 hover:text-pink-600 hover:bg-pink-50/50' }}">
-              Dashboard Laboran
-            </a>
-            <a href="{{ route('peminjaman.index') }}"
-               class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('peminjaman.*') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-slate-600 hover:text-pink-600 hover:bg-pink-50/50' }}">
-              Kelola Peminjaman
-            </a>
-          @elseif(Auth::user()->isPeminjam())
-            <a href="{{ route('peminjam.dashboard') }}"
-               class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('peminjam.dashboard') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-slate-600 hover:text-pink-600 hover:bg-pink-50/50' }}">
-              Dashboard Peminjam
-            </a>
-            <a href="{{ route('peminjam.riwayat') }}"
-               class="px-3.5 py-2 rounded-lg text-sm font-medium transition-colors {{ request()->routeIs('peminjam.riwayat') ? 'text-pink-600 bg-pink-50 font-semibold' : 'text-slate-600 hover:text-pink-600 hover:bg-pink-50/50' }}">
-              Riwayat Saya
-            </a>
-          @endif
-        @endauth
-      </nav>
+                <div class="sidebar-section-label">Menu Utama</div>
 
-      <!-- Right Auth Actions -->
-      <div class="flex items-center gap-3">
-        @guest
-          <a href="{{ route('login') }}"
-             class="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-pink-600 transition-colors">
-            Masuk
-          </a>
-          <a href="{{ route('register') }}"
-             class="inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-700 hover:to-rose-600 shadow-sm shadow-pink-200 transition-all hover:-translate-y-0.5">
-            Daftar Akun
-          </a>
-        @else
-          <div class="flex items-center gap-3">
-            <a href="{{ route('profil.edit') }}"
-               class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg border border-pink-100 bg-pink-50/50 hover:bg-pink-100/60 transition-colors text-left"
-               title="Kelola Profil">
-              <div class="w-7 h-7 rounded-full bg-pink-600 text-white flex items-center justify-center font-bold text-xs">
-                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-              </div>
-              <div class="text-xs">
-                <div class="font-semibold text-slate-800 leading-tight">{{ Str::limit(Auth::user()->name, 15) }}</div>
-                <div class="text-[10px] text-pink-600 font-bold uppercase tracking-wider">{{ Auth::user()->role_label }}</div>
-              </div>
-            </a>
+                <a href="{{ route('alat.beranda') }}"
+                   class="sidebar-link {{ request()->routeIs('alat.*') ? 'sidebar-link-active' : '' }}">
+                    <span class="sidebar-link-icon">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                  d="M3 7l9-4 9 4v10l-9 4-9-4V7zm0 0l9 4 9-4m-9 4v10"/>
+                        </svg>
+                    </span>
+                    <span>Katalog Alat</span>
+                </a>
 
-            <form action="{{ route('logout') }}" method="POST" class="inline m-0">
-              @csrf
-              <button type="submit"
-                      class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 hover:border-rose-200 transition-all cursor-pointer"
-                      title="Keluar dari akun">
-                Logout
-              </button>
-            </form>
-          </div>
-        @endguest
-      </div>
+                @auth
+
+                    @if(Auth::user()->isAdmin())
+
+                        <div class="sidebar-section-label">Administrasi</div>
+
+                        <a href="{{ route('admin.dashboard') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M3 3h8v8H3V3zm10 0h8v5h-8V3zm0 7h8v11h-8V10zM3 13h8v8H3v-8z"/>
+                                </svg>
+                            </span>
+                            <span>Dashboard Admin</span>
+                        </a>
+
+                        <a href="{{ route('admin.alat.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.alat.*') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M4 5h16M4 12h16M4 19h16M8 5v14m8-14v14"/>
+                                </svg>
+                            </span>
+                            <span>Kelola Alat</span>
+                        </a>
+
+                        <a href="{{ route('peminjaman.index') }}"
+                           class="sidebar-link {{ request()->routeIs('peminjaman.*') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+                                </svg>
+                            </span>
+                            <span>Semua Transaksi</span>
+                        </a>
+
+                        <a href="{{ route('admin.users.index') }}"
+                           class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M16 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2m6-10a4 4 0 100-8 4 4 0 000 8zm10 10v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                                </svg>
+                            </span>
+                            <span>Pengguna</span>
+                        </a>
+
+                    @elseif(Auth::user()->isLaboran())
+
+                        <div class="sidebar-section-label">Operasional</div>
+
+                        <a href="{{ route('laboran.dashboard') }}"
+                           class="sidebar-link {{ request()->routeIs('laboran.dashboard') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M3 3h8v8H3V3zm10 0h8v5h-8V3zm0 7h8v11h-8V10zM3 13h8v8H3v-8z"/>
+                                </svg>
+                            </span>
+                            <span>Dashboard Laboran</span>
+                        </a>
+
+                        <a href="{{ route('peminjaman.index') }}"
+                           class="sidebar-link {{ request()->routeIs('peminjaman.*') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>
+                                </svg>
+                            </span>
+                            <span>Kelola Peminjaman</span>
+                        </a>
+
+                    @elseif(Auth::user()->isPeminjam())
+
+                        <div class="sidebar-section-label">Area Peminjam</div>
+
+                        <a href="{{ route('peminjam.dashboard') }}"
+                           class="sidebar-link {{ request()->routeIs('peminjam.dashboard') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M3 3h8v8H3V3zm10 0h8v5h-8V3zm0 7h8v11h-8V10zM3 13h8v8H3v-8z"/>
+                                </svg>
+                            </span>
+                            <span>Dashboard Peminjam</span>
+                        </a>
+
+                        <a href="{{ route('peminjam.riwayat') }}"
+                           class="sidebar-link {{ request()->routeIs('peminjam.riwayat') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </span>
+                            <span>Riwayat Saya</span>
+                        </a>
+
+                    @endif
+
+                @endauth
+            </nav>
+
+            <!-- SIDEBAR USER -->
+            @auth
+                <div class="sidebar-user">
+                    <div class="user-avatar">
+                        {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    </div>
+
+                    <div class="min-w-0 flex-1">
+                        <div class="sidebar-user-name">
+                            {{ Str::limit(Auth::user()->name, 20) }}
+                        </div>
+                        <div class="sidebar-user-role">
+                            {{ Auth::user()->role_label }}
+                        </div>
+                    </div>
+                </div>
+            @endauth
+
+        </aside>
+
+        <!-- MOBILE SIDEBAR OVERLAY -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="app-content">
+
+            <!-- TOPBAR -->
+            <header class="app-topbar">
+
+                <div class="flex items-center gap-3">
+                    <button type="button"
+                            class="sidebar-toggle"
+                            id="sidebarToggle"
+                            aria-label="Buka navigasi"
+                            aria-controls="appSidebar"
+                            aria-expanded="false"
+                            data-sidebar-toggle>
+                        <svg width="21" height="21" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+
+                    <div>
+                        <div class="topbar-title">
+                            @yield('title', 'Dashboard')
+                        </div>
+                        <div class="topbar-subtitle">
+                            Sistem Peminjaman Alat Laboratorium Terpadu
+                        </div>
+                    </div>
+                </div>
+
+                <div class="topbar-actions">
+
+                    <!-- THEME TOGGLE -->
+                    <button type="button"
+                            class="theme-toggle"
+                            id="themeToggle"
+                            data-theme-toggle
+                            aria-label="Ganti tema"
+                            title="Ganti Light/Dark Mode">
+                        <svg data-theme-icon="light" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="4"/>
+                            <path stroke-linecap="round" stroke-width="1.8"
+                                  d="M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3l1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3l1.42-1.42"/>
+                        </svg>
+
+                        <svg data-theme-icon="dark" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                  d="M20.5 15.5A8.5 8.5 0 018.5 3.5 8.5 8.5 0 1020.5 15.5z"/>
+                        </svg>
+                    </button>
+
+                    @guest
+                        <a href="{{ route('login') }}" class="btn btn-secondary btn-sm">
+                            Masuk
+                        </a>
+
+                        <a href="{{ route('register') }}" class="btn btn-sm">
+                            Daftar
+                        </a>
+                    @else
+                        <a href="{{ route('profil.edit') }}"
+                           class="btn btn-secondary btn-sm">
+                            Profil
+                        </a>
+
+                        <form action="{{ route('logout') }}" method="POST" class="m-0">
+                            @csrf
+                            <button type="submit" class="btn btn-danger btn-sm">
+                                Logout
+                            </button>
+                        </form>
+                    @endguest
+
+                </div>
+            </header>
+
+            <!-- PAGE CONTENT -->
+            <main class="app-main">
+                <div class="app-main-inner">
+
+                    <!-- FLASH NOTIFICATIONS -->
+                    @if (session('success'))
+                        <div class="alert alert-success">
+                            <div class="flex items-start gap-3">
+                                <span aria-hidden="true">✓</span>
+                                <div>{{ session('success') }}</div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (session('error'))
+                        <div class="alert alert-error">
+                            <div class="flex items-start gap-3">
+                                <span aria-hidden="true">!</span>
+                                <div>{{ session('error') }}</div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (session('info'))
+                        <div class="alert alert-info">
+                            <div class="flex items-start gap-3">
+                                <span aria-hidden="true">i</span>
+                                <div>{{ session('info') }}</div>
+                            </div>
+                        </div>
+                    @endif
+
+                    @yield('content')
+
+                </div>
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="site-footer mt-auto">
+                <div class="site-footer-inner">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span class="font-bold">SIPINJAM-LAB</span>
+                        <span>&bull;</span>
+                        <span>Praktik Aplikasi Web (INF60295)</span>
+                    </div>
+
+                    <div class="mt-2">
+                        Sistem Informasi Peminjaman Alat Laboratorium Terpadu
+                        &copy; {{ date('Y') }}
+                    </div>
+                </div>
+            </footer>
+
+        </div>
     </div>
-  </header>
 
-  <!-- Flash Notification Banners -->
-  <div class="max-w-7xl mx-auto w-full px-4 pt-4">
-    @if (session('success'))
-      <div class="mb-4 rounded-xl border border-emerald-200 bg-emerald-50/90 p-4 text-sm text-emerald-800 flex items-start gap-3 shadow-sm">
-        <svg class="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <div class="font-medium">{{ session('success') }}</div>
-      </div>
-    @endif
-
-    @if (session('error'))
-      <div class="mb-4 rounded-xl border border-rose-200 bg-rose-50/90 p-4 text-sm text-rose-800 flex items-start gap-3 shadow-sm">
-        <svg class="w-5 h-5 text-rose-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <div class="font-medium">{{ session('error') }}</div>
-      </div>
-    @endif
-
-    @if (session('info'))
-      <div class="mb-4 rounded-xl border border-sky-200 bg-sky-50/90 p-4 text-sm text-sky-800 flex items-start gap-3 shadow-sm">
-        <svg class="w-5 h-5 text-sky-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <div class="font-medium">{{ session('info') }}</div>
-      </div>
-    @endif
-  </div>
-
-  <!-- Main Application Content -->
-  <main class="container-page flex-1">
-    @yield('content')
-  </main>
-
-  <!-- Site Footer -->
-  <footer class="site-footer mt-auto">
-    <div class="site-footer-inner">
-      <div class="flex items-center gap-2">
-        <span class="font-bold text-slate-800">SIPINJAM-LAB</span>
-        <span>&bull;</span>
-        <span>Praktik Aplikasi Web (INF60295)</span>
-      </div>
-      <div>
-        <span>Sistem Informasi Peminjaman Alat Laboratorium Terpadu &copy; {{ date('Y') }}</span>
-      </div>
-    </div>
-  </footer>
-
-  @stack('scripts')
+    @stack('scripts')
 </body>
 </html>

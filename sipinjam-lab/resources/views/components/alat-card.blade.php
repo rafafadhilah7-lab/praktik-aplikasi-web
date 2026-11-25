@@ -1,3 +1,4 @@
+
 @props(['alat'])
 
 @php
@@ -15,7 +16,11 @@
     />
 
     <p class="card-meta">
-        Stok: <strong class="{{ $ada ? 'text-pink-700 font-bold' : 'text-rose-600' }}">{{ $alat['stok'] }} unit</strong> &bull;
+        Stok:
+        <strong class="{{ $ada ? 'font-bold text-emerald-700' : 'font-bold text-rose-600' }}">
+            {{ $alat['stok'] }} unit
+        </strong>
+        &bull;
         Kategori: {{ $alat['kategori'] }}
     </p>
 
