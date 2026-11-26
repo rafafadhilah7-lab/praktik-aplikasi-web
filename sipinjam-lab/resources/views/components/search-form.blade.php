@@ -1,14 +1,12 @@
-
 @props([
     'q' => '',
     'kategori' => '',
-    'tanggal' => '',
     'daftarKategori' => [],
 ])
 
 <form method="GET" action="{{ route('alat.hasil') }}" class="card" role="search">
     <div class="card-body">
-        <div class="grid gap-4 md:grid-cols-4 md:items-end">
+        <div class="grid gap-4 md:grid-cols-[1fr_220px_auto] md:items-end">
             <x-field
                 name="q"
                 label="Nama alat"
@@ -39,16 +37,17 @@
                 </select>
             </div>
 
-            <x-field
-                name="tanggal"
-                label="Tanggal pinjam"
-                type="date"
-                :value="$tanggal"
-            />
+            <div class="flex items-center gap-2 mb-4">
+                <x-button type="submit" class="w-full md:w-auto">
+                    Cari Alat
+                </x-button>
 
-            <x-button type="submit" class="w-full">
-                Cari Alat
-            </x-button>
+                @if ($q !== '' || $kategori !== '')
+                    <a href="{{ route('alat.hasil') }}" class="btn btn-secondary">
+                        Reset
+                    </a>
+                @endif
+            </div>
         </div>
     </div>
 </form>

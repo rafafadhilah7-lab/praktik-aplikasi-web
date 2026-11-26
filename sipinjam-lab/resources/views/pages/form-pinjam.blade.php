@@ -3,36 +3,35 @@
 @section('title', 'Form Peminjaman Alat - ' . $alat->nama)
 
 @section('content')
-<div class="mx-auto max-w-3xl px-4 py-6 space-y-6">
+<div class="mx-auto max-w-3xl space-y-6">
   <!-- Tombol kembali -->
   <a href="{{ route('alat.detail', $alat->id) }}"
-     class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-pink-600 hover:text-pink-700">
+     class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider link-accent">
     &larr; Kembali ke detail alat
   </a>
 
   <!-- Kartu form peminjaman -->
-  <div class="overflow-hidden rounded-3xl border border-pink-100 bg-white shadow-xl shadow-pink-100/30">
+  <div class="surface-card overflow-hidden">
     <!-- Header Informasi Alat -->
-    <div class="bg-gradient-to-r from-pink-50 via-[#fdf7f9] to-rose-50 p-6 sm:p-8 border-b border-pink-100">
-      <div class="flex items-center gap-2 mb-2">
+    <div class="card-header-soft p-6 sm:p-8">
+      <div class="flex flex-wrap items-center gap-2 mb-2">
         <span class="code-label">{{ $alat->kode }}</span>
-        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-          Stok Fisik: {{ $alat->stok }} Unit
-        </span>
+        <x-badge :status="$alat->stok > 0 ? 'tersedia' : 'habis'" />
+        <span class="text-xs font-semibold text-muted">Stok Fisik: {{ $alat->stok }} Unit</span>
       </div>
 
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-heading">
         Form Pengajuan Peminjaman: {{ $alat->nama }}
       </h1>
 
-      <p class="mt-2 text-xs text-slate-500">
-        Lokasi Lab: <strong>{{ $alat->lokasi }}</strong> &bull; Kategori: <strong>{{ $alat->kategori }}</strong>
+      <p class="mt-2 text-xs text-muted">
+        Lokasi Lab: <strong class="text-heading">{{ $alat->lokasi }}</strong> &bull; Kategori: <strong class="text-heading">{{ $alat->kategori }}</strong>
       </p>
     </div>
 
     <!-- Alert Validasi Kesalahan -->
     @if ($errors->any())
-      <div class="mx-6 sm:mx-8 mt-6 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+      <div class="mx-6 sm:mx-8 mt-6 alert alert-error mb-0 text-sm">
         <p class="font-bold mb-1">Periksa kembali isian formulir:</p>
         <ul class="list-inside list-disc space-y-1">
           @foreach ($errors->all() as $error)
@@ -47,9 +46,9 @@
       @csrf
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Nama Peminjam (otomatis dari akun, tidak dikirim lewat form) -->
+        <!-- Nama Peminjam -->
         <div>
-          <label for="nama_peminjam" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+          <label for="nama_peminjam" class="field-label block mb-1.5">
             Nama Peminjam
           </label>
           <input type="text"
@@ -57,12 +56,12 @@
                  value="{{ $user->name }}"
                  readonly
                  tabindex="-1"
-                 class="field-input bg-slate-50 text-slate-600 cursor-not-allowed">
+                 class="field-input">
         </div>
 
-        <!-- NIM (otomatis dari akun, tidak dikirim lewat form) -->
+        <!-- NIM -->
         <div>
-          <label for="nim" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
+          <label for="nim" class="field-label block mb-1.5">
             NIM Mahasiswa
           </label>
           <input type="text"
@@ -70,20 +69,20 @@
                  value="{{ $user->nim }}"
                  readonly
                  tabindex="-1"
-                 class="field-input font-mono bg-slate-50 text-slate-600 cursor-not-allowed">
+                 class="field-input font-mono">
         </div>
       </div>
 
-      <p class="-mt-2 text-[11px] text-slate-400">
+      <p class="-mt-2 text-xs text-muted">
         Nama dan NIM diambil dari akun Anda.
-        Ada yang salah? <a href="{{ route('profil.edit') }}" class="font-bold text-pink-600 hover:text-pink-700">Perbarui profil</a>.
+        Ada yang salah? <a href="{{ route('profil.edit') }}" class="link-accent">Perbarui profil</a>.
       </p>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <!-- Tanggal Pinjam -->
         <div>
-          <label for="tanggal_pinjam" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-            Tanggal Pinjam <span class="text-rose-500">*</span>
+          <label for="tanggal_pinjam" class="field-label block mb-1.5">
+            Tanggal Pinjam <span class="field-required">*</span>
           </label>
           <input type="date"
                  id="tanggal_pinjam"
@@ -96,8 +95,8 @@
 
         <!-- Durasi Pinjam -->
         <div>
-          <label for="durasi" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-            Durasi (Hari) <span class="text-rose-500">*</span>
+          <label for="durasi" class="field-label block mb-1.5">
+            Durasi (Hari) <span class="field-required">*</span>
           </label>
           <input type="number"
                  id="durasi"
@@ -107,13 +106,13 @@
                  max="30"
                  required
                  class="field-input">
-          <p class="mt-1 text-[11px] text-slate-400">Maks. 30 hari.</p>
+          <p class="mt-1 text-[11px] text-muted">Maks. 30 hari.</p>
         </div>
 
         <!-- Jumlah Unit -->
         <div>
-          <label for="jumlah" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-            Jumlah Unit <span class="text-rose-500">*</span>
+          <label for="jumlah" class="field-label block mb-1.5">
+            Jumlah Unit <span class="field-required">*</span>
           </label>
           <input type="number"
                  id="jumlah"
@@ -122,15 +121,15 @@
                  min="1"
                  max="{{ $alat->stok }}"
                  required
-                 class="field-input font-bold text-pink-700">
-          <p class="mt-1 text-[11px] text-slate-400">Tersedia: {{ $alat->stok }} unit.</p>
+                 class="field-input font-bold text-accent">
+          <p class="mt-1 text-[11px] text-muted">Tersedia: {{ $alat->stok }} unit.</p>
         </div>
       </div>
 
       <!-- Keperluan Peminjaman -->
       <div>
-        <label for="keperluan" class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-          Keperluan Praktikum / Riset <span class="text-rose-500">*</span>
+        <label for="keperluan" class="field-label block mb-1.5">
+          Keperluan Praktikum / Riset <span class="field-required">*</span>
         </label>
         <textarea id="keperluan"
                   name="keperluan"
@@ -138,11 +137,11 @@
                   maxlength="500"
                   required
                   placeholder="Jelaskan mata kuliah praktikum, modul eksperimen, atau riset yang dilakukan..."
-                  class="w-full rounded-xl border border-slate-200 p-3 text-sm focus:border-pink-500 focus:outline-none focus:ring-4 focus:ring-pink-100 transition-all">{{ old('keperluan') }}</textarea>
+                  class="field-input min-h-[96px]">{{ old('keperluan') }}</textarea>
       </div>
 
       <!-- Tombol Aksi -->
-      <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+      <div class="flex flex-wrap items-center gap-3 pt-4 border-t divider-subtle">
         <button type="submit" class="btn">
           Kirim Pengajuan Peminjaman
         </button>

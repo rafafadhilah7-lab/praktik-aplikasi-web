@@ -23,6 +23,7 @@ class Peminjaman extends Model
     public const STATUS_DIPINJAM = 'dipinjam';
     public const STATUS_DIKEMBALIKAN = 'dikembalikan';
     public const STATUS_DITOLAK = 'ditolak';
+    public const STATUS_DIBATALKAN = 'dibatalkan';
 
     public const STATUS = [
         self::STATUS_MENUNGGU,
@@ -30,6 +31,7 @@ class Peminjaman extends Model
         self::STATUS_DIPINJAM,
         self::STATUS_DIKEMBALIKAN,
         self::STATUS_DITOLAK,
+        self::STATUS_DIBATALKAN,
     ];
 
     /**
@@ -116,6 +118,11 @@ class Peminjaman extends Model
     public function isDitolak(): bool
     {
         return $this->status === self::STATUS_DITOLAK;
+    }
+
+    public function isDibatalkan(): bool
+    {
+        return $this->status === self::STATUS_DIBATALKAN;
     }
 
     /**

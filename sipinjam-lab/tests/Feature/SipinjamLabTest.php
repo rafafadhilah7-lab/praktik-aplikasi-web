@@ -165,7 +165,7 @@ class SipinjamLabTest extends TestCase
         $this->assertAuthenticated();
 
         $response = $this->post(route('logout'));
-        $response->assertRedirect(route('login'));
+        $response->assertRedirect(route('alat.beranda'));
         $this->assertGuest();
     }
 
@@ -185,9 +185,7 @@ class SipinjamLabTest extends TestCase
         $this->actingAs($peminjam);
 
         $response = $this->get(route('admin.dashboard'));
-        // Middleware redirect ke dashboard peminjam dengan pesan error
-        $response->assertRedirect(route('peminjam.dashboard'));
-        $response->assertSessionHas('error');
+        $response->assertForbidden();
     }
 
     /**
@@ -205,8 +203,7 @@ class SipinjamLabTest extends TestCase
         $this->actingAs($laboran);
 
         $response = $this->get(route('admin.users.index'));
-        $response->assertRedirect(route('laboran.dashboard'));
-        $response->assertSessionHas('error');
+        $response->assertForbidden();
     }
 
     /**
@@ -291,17 +288,15 @@ class SipinjamLabTest extends TestCase
         // 1. Peminjam mengajukan peminjaman
         $this->actingAs($peminjam);
         $resAjukan = $this->post(route('alat.ajukan', $alat->id), [
-            'nama_peminjam' => $peminjam->name,
-            'nim' => $peminjam->nim,
             'tanggal_pinjam' => Carbon::now()->addDays(1)->format('Y-m-d'),
             'durasi' => 3,
             'jumlah' => 2,
             'keperluan' => 'Praktikum Sinyal Sistem',
         ]);
-        $resAjukan->assertStatus(200);
 
         $peminjaman = Peminjaman::where('nim', $peminjam->nim)->latest()->first();
         $this->assertNotNull($peminjaman);
+        $resAjukan->assertRedirect(route('peminjaman.konfirmasi', $peminjaman->id));
         $this->assertEquals(Peminjaman::STATUS_MENUNGGU, $peminjaman->status);
         $this->assertEquals(2, $peminjaman->jumlah);
 
@@ -346,9 +341,17 @@ class SipinjamLabTest extends TestCase
             'lokasi' => 'Lab Kimia',
         ]);
 
-        $response = $this->post(route('alat.ajukan', $alat->id), [
-            'nama_peminjam' => 'Mahasiswa Test',
+        $peminjam = User::create([
+            'name' => 'Mahasiswa Test',
+            'email' => 'stoktest@sipinjam.lab',
+            'password' => Hash::make('password123'),
+            'role' => User::ROLE_PEMINJAM,
             'nim' => '24051130098',
+        ]);
+
+        $this->actingAs($peminjam);
+
+        $response = $this->post(route('alat.ajukan', $alat->id), [
             'tanggal_pinjam' => Carbon::now()->addDays(2)->format('Y-m-d'),
             'durasi' => 2,
             'jumlah' => 5, // melebihi stok 2
@@ -356,5 +359,6 @@ class SipinjamLabTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('jumlah');
+        $this->assertDatabaseCount('peminjaman', 0);
     }
 }

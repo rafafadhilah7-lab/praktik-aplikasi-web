@@ -53,6 +53,11 @@
                 'title',
                 theme === 'dark' ? 'Aktifkan Light Mode' : 'Aktifkan Dark Mode'
             );
+
+            themeToggle.setAttribute(
+                'aria-pressed',
+                theme === 'dark' ? 'true' : 'false'
+            );
         }
     };
 
@@ -176,5 +181,52 @@
             closeSidebar();
         }
     });
+
+    // =========================================
+    // LANDING MOBILE MENU
+    // =========================================
+
+    const landingMenuToggle = document.querySelector('[data-landing-menu-toggle]');
+    const landingMobileMenu = document.getElementById('landingMobileMenu');
+
+    if (landingMenuToggle && landingMobileMenu) {
+        const closeLandingMenu = () => {
+            landingMobileMenu.classList.add('hidden');
+            landingMenuToggle.setAttribute('aria-expanded', 'false');
+        };
+
+        landingMenuToggle.addEventListener('click', () => {
+            const isHidden = landingMobileMenu.classList.toggle('hidden');
+            landingMenuToggle.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+        });
+
+        landingMobileMenu.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', closeLandingMenu);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeLandingMenu();
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 768) {
+                closeLandingMenu();
+            }
+        });
+    }
+
+    // =========================================
+    // PRINT REPORT BUTTON
+    // =========================================
+
+    const printReportBtn = document.getElementById('printReportBtn');
+
+    if (printReportBtn) {
+        printReportBtn.addEventListener('click', () => {
+            window.print();
+        });
+    }
 
 })();

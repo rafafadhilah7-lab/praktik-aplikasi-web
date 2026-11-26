@@ -165,7 +165,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('login')
+        return redirect()->route('alat.beranda')
             ->with('info', 'Anda telah berhasil keluar dari sistem SIPINJAM-LAB.');
     }
 

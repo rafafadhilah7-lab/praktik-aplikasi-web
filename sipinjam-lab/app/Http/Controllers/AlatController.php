@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Alat;
 use App\Models\Peminjaman;
+use App\Models\User;
+use App\Services\PeminjamanLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -42,19 +44,71 @@ class AlatController extends Controller
      */
     public function beranda()
     {
-        $tersedia = Alat::query()
-            ->where('stok', '>', 0)
-            ->limit(6)
+        $hariIni = now()->toDateString();
+
+        $semuaAlat = Alat::query()
+            ->orderBy('nama')
             ->get();
 
-        $totalAlat = Alat::count();
-        $totalTersedia = Alat::where('stok', '>', 0)->count();
+        $ketersediaanHariIni = [];
+        $totalTersediaHariIni = 0;
+
+        foreach ($semuaAlat as $alat) {
+            $terpakai = Peminjaman::puncakTerpakai($alat->id, $hariIni, $hariIni);
+            $sisa = max(0, (int) $alat->stok - $terpakai);
+            $ketersediaanHariIni[$alat->id] = $sisa;
+
+            if ($sisa > 0) {
+                $totalTersediaHariIni++;
+            }
+        }
+
+        $tersedia = $semuaAlat
+            ->where('stok', '>', 0)
+            ->take(6)
+            ->values();
+
+        $alatPopuler = Alat::query()
+            ->withCount(['peminjaman as total_peminjaman' => function ($query) {
+                $query->where('status', '!=', Peminjaman::STATUS_DITOLAK);
+            }])
+            ->orderByDesc('total_peminjaman')
+            ->orderBy('nama')
+            ->limit(4)
+            ->get();
+
+        if ($alatPopuler->count() < 4) {
+            $existingIds = $alatPopuler->pluck('id')->all();
+            $tambahan = Alat::query()
+                ->where('stok', '>', 0)
+                ->whereNotIn('id', $existingIds)
+                ->orderBy('nama')
+                ->limit(4 - $alatPopuler->count())
+                ->get();
+
+            $alatPopuler = $alatPopuler->concat($tambahan);
+        }
+
+        $daftarKategori = $this->daftarKategori();
+        $totalAlat = $semuaAlat->count();
+        $totalTersedia = $semuaAlat->where('stok', '>', 0)->count();
+        $jumlahKategori = count($daftarKategori);
+        $jumlahLokasi = Alat::query()
+            ->whereNotNull('lokasi')
+            ->where('lokasi', '!=', '')
+            ->distinct('lokasi')
+            ->count('lokasi');
 
         return view('pages.beranda', [
-            'daftarKategori' => $this->daftarKategori(),
+            'daftarKategori' => $daftarKategori,
             'tersedia' => $tersedia,
+            'alatPopuler' => $alatPopuler,
+            'ketersediaanHariIni' => $ketersediaanHariIni,
             'totalAlat' => $totalAlat,
             'totalTersedia' => $totalTersedia,
+            'totalTersediaHariIni' => $totalTersediaHariIni,
+            'jumlahKategori' => $jumlahKategori,
+            'jumlahLokasi' => $jumlahLokasi,
         ]);
     }
 
@@ -65,7 +119,6 @@ class AlatController extends Controller
     {
         $q = trim((string) $request->query('q', ''));
         $kategori = (string) $request->query('kategori', '');
-        $tanggal = (string) $request->query('tanggal', '');
 
         $query = Alat::query();
 
@@ -87,7 +140,6 @@ class AlatController extends Controller
             'hasil' => $hasil,
             'q' => $q,
             'kategori' => $kategori,
-            'tanggal' => $tanggal,
             'daftarKategori' => $this->daftarKategori(),
         ]);
     }
@@ -181,7 +233,7 @@ class AlatController extends Controller
         $namaPeminjam = $user->name;
         $nim = $user->nim;
 
-        $peminjaman = DB::transaction(function () use ($data, $id, $userId, $namaPeminjam, $nim) {
+        $peminjaman = DB::transaction(function () use ($data, $id, $user, $userId, $namaPeminjam, $nim) {
             $alat = Alat::query()
                 ->lockForUpdate()
                 ->findOrFail($id);
@@ -218,7 +270,7 @@ class AlatController extends Controller
                 ]);
             }
 
-            return Peminjaman::create([
+            $created = Peminjaman::create([
                 'user_id' => $userId,
                 'alat_id' => $alat->id,
                 'nama_peminjam' => $namaPeminjam,
@@ -230,6 +282,33 @@ class AlatController extends Controller
                 'keperluan' => $data['keperluan'],
                 'status' => Peminjaman::STATUS_MENUNGGU,
             ]);
+
+            PeminjamanLogger::catat(
+                $user,
+                $created,
+                'pengajuan_dibuat',
+                "Mengajukan {$created->jumlah} unit {$alat->nama} ({$created->tanggal_pinjam->format('d/m/Y')} - {$created->tanggal_selesai->format('d/m/Y')})."
+            );
+
+            PeminjamanLogger::kirimKeUser(
+                $user,
+                $created->id,
+                'Pengajuan Berhasil Dikirim',
+                "Pengajuan #{$created->id} untuk {$alat->nama} ({$created->jumlah} unit) sedang menunggu persetujuan laboran.",
+                Peminjaman::STATUS_MENUNGGU,
+                route('peminjaman.detail', $created->id)
+            );
+
+            PeminjamanLogger::kirimKeRole(
+                User::ROLE_LABORAN,
+                $created->id,
+                'Pengajuan Baru Masuk',
+                "Pengajuan #{$created->id} oleh {$namaPeminjam} untuk {$alat->nama} ({$created->jumlah} unit) perlu diverifikasi.",
+                Peminjaman::STATUS_MENUNGGU,
+                route('peminjaman.detail', $created->id)
+            );
+
+            return $created;
         });
 
         return redirect()->route('peminjaman.konfirmasi', $peminjaman->id);

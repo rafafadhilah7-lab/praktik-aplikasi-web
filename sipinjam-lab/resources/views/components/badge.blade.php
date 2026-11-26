@@ -9,6 +9,7 @@
     'dipinjam'     => ['info', 'Dipinjam'],
     'dikembalikan' => ['success', 'Dikembalikan'],
     'ditolak'      => ['danger', 'Ditolak'],
+    'dibatalkan'   => ['neutral', 'Dibatalkan'],
     'admin'        => ['purple', 'Admin'],
     'laboran'      => ['info', 'Laboran'],
     'peminjam'     => ['success', 'Peminjam'],

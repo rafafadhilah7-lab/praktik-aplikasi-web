@@ -12,6 +12,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
+    <script>
+        (function () {
+            try {
+                if (localStorage.getItem('sipinjam-theme') === 'dark') {
+                    document.documentElement.setAttribute('data-theme', 'dark');
+                }
+            } catch (e) {}
+        })();
+    </script>
+
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
@@ -108,6 +118,28 @@
                             <span>Pengguna</span>
                         </a>
 
+                        <a href="{{ route('laporan.index') }}"
+                           class="sidebar-link {{ request()->routeIs('laporan.*') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M9 17v-6m4 6V7m4 10v-4M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                            </span>
+                            <span>Laporan</span>
+                        </a>
+
+                        <a href="{{ route('aktivitas.index') }}"
+                           class="sidebar-link {{ request()->routeIs('aktivitas.*') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </span>
+                            <span>Aktivitas</span>
+                        </a>
+
                     @elseif(Auth::user()->isLaboran())
 
                         <div class="sidebar-section-label">Operasional</div>
@@ -132,6 +164,28 @@
                                 </svg>
                             </span>
                             <span>Kelola Peminjaman</span>
+                        </a>
+
+                        <a href="{{ route('laporan.index') }}"
+                           class="sidebar-link {{ request()->routeIs('laporan.*') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M9 17v-6m4 6V7m4 10v-4M5 21h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                            </span>
+                            <span>Laporan</span>
+                        </a>
+
+                        <a href="{{ route('aktivitas.index') }}"
+                           class="sidebar-link {{ request()->routeIs('aktivitas.*') ? 'sidebar-link-active' : '' }}">
+                            <span class="sidebar-link-icon">
+                                <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                          d="M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </span>
+                            <span>Aktivitas</span>
                         </a>
 
                     @elseif(Auth::user()->isPeminjam())
@@ -161,6 +215,28 @@
                         </a>
 
                     @endif
+
+                    @php
+                        $unreadCount = \Illuminate\Support\Facades\Schema::hasTable('notifications')
+                            ? Auth::user()->unreadNotifications()->count()
+                            : 0;
+                    @endphp
+
+                    <div class="sidebar-section-label">Akun</div>
+
+                    <a href="{{ route('notifikasi.index') }}"
+                       class="sidebar-link {{ request()->routeIs('notifikasi.*') ? 'sidebar-link-active' : '' }}">
+                        <span class="sidebar-link-icon">
+                            <svg width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                      d="M15 17h5l-1.4-1.4A2 2 0 0118 14.17V11a6 6 0 10-12 0v3.17a2 2 0 01-.6 1.43L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                        </span>
+                        <span class="flex-1">Notifikasi</span>
+                        @if($unreadCount > 0)
+                            <span class="badge badge-info text-[10px]">{{ $unreadCount }}</span>
+                        @endif
+                    </a>
 
                 @endauth
             </nav>

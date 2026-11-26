@@ -5,29 +5,28 @@
 @section('content')
 <div class="space-y-6">
   <!-- Breadcrumb -->
-  <nav class="text-xs text-slate-500 flex items-center gap-2">
-    <a href="{{ route('alat.beranda') }}" class="text-pink-600 hover:underline">Beranda</a>
+  <nav class="text-xs text-muted flex items-center gap-2">
+    <a href="{{ route('alat.beranda') }}" class="link-accent">Beranda</a>
     <span>&rsaquo;</span>
-    <span class="text-slate-800 font-semibold">Hasil Pencarian</span>
+    <span class="text-heading font-semibold">Hasil Pencarian</span>
   </nav>
 
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">Katalog Alat Laboratorium</h1>
-      <p class="text-xs text-slate-500 mt-1">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-heading">Katalog Alat Laboratorium</h1>
+      <p class="text-xs text-muted mt-1">
         Menampilkan {{ $hasil->total() }} alat laboratorium yang terdaftar di database
-        @if ($q !== '') untuk kata kunci <strong class="text-pink-700">"{{ $q }}"</strong> @endif
-        @if ($kategori !== '') dalam kategori <strong class="text-pink-700">{{ $kategori }}</strong> @endif
+        @if ($q !== '') untuk kata kunci <strong class="text-accent">"{{ $q }}"</strong> @endif
+        @if ($kategori !== '') dalam kategori <strong class="text-accent">{{ $kategori }}</strong> @endif
       </p>
     </div>
   </div>
 
   <!-- Search Form -->
-  <div class="card p-6 bg-white border-pink-100 shadow-sm">
+  <div class="surface-card p-5 sm:p-6">
     <x-search-form
       :q="$q"
       :kategori="$kategori"
-      :tanggal="$tanggal"
       :daftar-kategori="$daftarKategori"
     />
   </div>
@@ -46,14 +45,14 @@
       </div>
     @endif
   @else
-    <div class="card p-8 bg-white text-center border-dashed border-2 border-pink-200">
-      <div class="w-12 h-12 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center mx-auto mb-3">
+    <div class="surface-card p-8 text-center border-dashed border-2">
+      <div class="w-12 h-12 rounded-full surface-inset text-accent flex items-center justify-center mx-auto mb-3">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
       </div>
-      <h2 class="text-lg font-bold text-slate-900 mb-1">Alat Tidak Ditemukan</h2>
-      <p class="text-xs text-slate-500 max-w-md mx-auto mb-4">
+      <h2 class="text-lg font-bold text-heading mb-1">Alat Tidak Ditemukan</h2>
+      <p class="text-xs text-muted max-w-md mx-auto mb-4">
         Tidak ada alat yang cocok dengan kata kunci atau filter yang Anda pilih. Coba gunakan kata kunci umum atau pilih "Semua Kategori".
       </p>
       <a href="{{ route('alat.hasil') }}" class="btn btn-secondary btn-sm inline-flex">

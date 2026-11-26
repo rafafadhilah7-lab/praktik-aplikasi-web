@@ -4,6 +4,8 @@ use App\Http\Controllers\AlatController;
 use App\Http\Controllers\AlatManageController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\NotifikasiController;
 use App\Http\Controllers\PeminjamanManageController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UserManageController;
@@ -58,6 +60,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/peminjaman/{id}', [PeminjamanManageController::class, 'detail'])
         ->whereNumber('id')
         ->name('peminjaman.detail');
+
+    // Notifikasi Pengguna
+    Route::get('/notifikasi', [NotifikasiController::class, 'index'])->name('notifikasi.index');
+    Route::post('/notifikasi/{id}/baca', [NotifikasiController::class, 'baca'])->name('notifikasi.baca');
+    Route::post('/notifikasi/baca-semua', [NotifikasiController::class, 'bacaSemua'])->name('notifikasi.bacaSemua');
 });
 
 // --------------------------------------------------------------------------
@@ -66,6 +73,9 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'role:peminjam'])->group(function () {
     Route::get('/peminjam/dashboard', [DashboardController::class, 'peminjam'])->name('peminjam.dashboard');
     Route::get('/peminjam/riwayat', [PeminjamanManageController::class, 'riwayatSaya'])->name('peminjam.riwayat');
+    Route::get('/peminjam/riwayat/{id}/edit', [PeminjamanManageController::class, 'edit'])->whereNumber('id')->name('peminjam.riwayat.edit');
+    Route::put('/peminjam/riwayat/{id}', [PeminjamanManageController::class, 'update'])->whereNumber('id')->name('peminjam.riwayat.update');
+    Route::patch('/peminjam/riwayat/{id}/batalkan', [PeminjamanManageController::class, 'batalkan'])->whereNumber('id')->name('peminjam.riwayat.batalkan');
 
     // Pengajuan peminjaman (wajib login sebagai peminjam)
     Route::get('/alat/{id}/pinjam', [AlatController::class, 'formPinjam'])->whereNumber('id')->name('alat.pinjam');
@@ -85,6 +95,8 @@ Route::middleware(['auth', 'role:laboran,admin'])->group(function () {
 
     // Manajemen Transaksi & Riwayat Seluruh Peminjaman
     Route::get('/peminjaman', [PeminjamanManageController::class, 'index'])->name('peminjaman.index');
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/aktivitas', [NotifikasiController::class, 'aktivitas'])->name('aktivitas.index');
     Route::post('/peminjaman/{id}/setujui', [PeminjamanManageController::class, 'setujui'])->whereNumber('id')->name('peminjaman.setujui');
     Route::post('/peminjaman/{id}/tolak', [PeminjamanManageController::class, 'tolak'])->whereNumber('id')->name('peminjaman.tolak');
     Route::post('/peminjaman/{id}/serahkan', [PeminjamanManageController::class, 'serahkan'])->whereNumber('id')->name('peminjaman.serahkan');
